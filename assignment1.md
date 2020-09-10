@@ -29,7 +29,7 @@ The assignment models database processing requests that manipulate several recor
 * GetRecord: returns a reference to a record. 
 * LockRecord and UnlockRecord: serve as mutex-locks, giving the calling process or thread exclusive access to a particular record.
 
-Each request updates several records in the database. In order to run a request, a process or thread calls a request's execute function in order to process it. `Launcher` is the base class from which each execution model will derive \(`ProcessPoolLauncher`, `ProcessLauncher`, `ThreadPoolLauncher`, and `ThreadLauncher`\). Each of these classes overrides the launcher's `ExecuteRequest` function.
+Each request updates several records in the database. In order to run a request, a process or thread calls a request's execute function in order to process it. `Launcher` is the base class from which each execution model will derive \(`ProcessPoolLauncher`, `ProcessLauncher`, `ThreadPoolLauncher`, and `ThreadLauncher`\). Each of these classes overrides the launcher's  **ExecuteRequest** function.
 
 **Your task** is to complete the implementations of the `ProcessPoolLauncher`, and `ThreadPoolLauncher` classes. Look for **"YOUR CODE HERE"** annotations in the comments in `src/ProcessPoolLauncher.cc` and `src/ThreadPoolLauncher.cc`. As mentioned above, we have provided implementations of the process-per-request, and thread-per-request execution models in `ProcessLauncher.cc`, and `ThreadLauncher.cc`, respectively. You should use these implementations as references while building your thread-pool, and process-pool implementations.
 
@@ -63,7 +63,7 @@ The `pool_size` and `max_outstanding` parameters above are specified as **comman
 
 ## Experiments
 
-The executable will run for about a minute, and measure the throughput \(requests per second\) of the specified execution model. **The measured throughput is written to a file automatically** -- `results.txt`.
+The executable will run for about a minute, and measure the throughput \(requests per second\) of the specified execution model. **The measured throughput is written to a file automatically** --- `results.txt`.
 
 Finally, you will **need to report** measurements for running requests under varying levels of conflicts between requests. Two requests conflict if they try to access the same record in the database. We have provided a `--contention` option to induce conflicts among transactions. To run an experiment under high contention \(lots of conflicts\), add the `--contention` flag as an argument to the executable. Experiments run under low contention \(few conflicts\) without the `--contention` flag.
 
