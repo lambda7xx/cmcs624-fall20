@@ -135,3 +135,6 @@ Questions
 8 points for each response. Total 16 points.
 {% endhint %}
 
+## How to submit
+
+Please submit all text files discussed above to the Assignment 1 link on ELMS. You do not need to submit any code, since we have access to your repositories.
