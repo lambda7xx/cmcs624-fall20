@@ -41,22 +41,22 @@ The provided makefile will compile your executable into a directory `build/db`. 
 
 ### max\_outstanding and pool\_size
 
-The **pool-based** schemes \(thread- and process-pools\) take a `pool size` parameter as input \(specified in their constructors\). The parameter is used to limit the maximum number of threads and processes available to execute requests. The **non-pool-based** schemes \(thread- and process-per-request\) take a `max outstanding` parameter as input \(again, specified in their constructors\). This parameter is used to limit the maximum number of in-flight requests at any given time.
+The **pool-based** schemes \(thread- and process-pools\) take a `pool_size` parameter as input \(specified in their constructors\). The parameter is used to limit the maximum number of threads and processes available to execute requests. The **non-pool-based** schemes \(thread- and process-per-request\) take a `max_outstanding` parameter as input \(again, specified in their constructors\). This parameter is used to limit the maximum number of in-flight requests at any given time.
 
-The `pool size` and `max outstanding` parameters above are specified as **command-line arguments**, and will be used to measure the relative performance of each of the four execution models.
+The `pool_size` and `max_outstanding` parameters above are specified as **command-line arguments**, and will be used to measure the relative performance of each of the four execution models.
 
 ### exp\_type
 
 `--exp_type` specifies the type of execution model.
 
-```text
-0 -- PROCESS_POOL
-1 -- PROCESS_PER_REQUEST
-2 -- THREAD_POOL
-3 -- THREAD_PER_REQUEST
-```
+| value | type |
+| :--- | :--- |
+| 0 | PROCESS\_POOL |
+| 1 | PROCESS\_PER\_REQUEST |
+| 2 | THREAD\_POOL |
+| 3 | THREAD\_PER\_REQUEST |
 
-* If you wish to test your process- or thread-pool implementations, specify the appropriate argument to `exp_type` and additionally specify a `pool size` \(as an integer\).
+* If you wish to test your process- or thread-pool implementations, specify the appropriate argument to `exp_type` and additionally specify a `pool_size` \(as an integer\).
 * If you wish to test your process- or thread-per-request implementations, specify the appropriate argument to `exp_type` and additionally specify the number of `max_outstanding` requests.
 
 ## Experiments
