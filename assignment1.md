@@ -24,10 +24,10 @@ This assignment uses mutexes to mediate inter-thread and inter-process communica
 
 ## Codebase
 
-The assignment models database processing requests that manipulate several records. The database consists of an array of `1000-byte-sized` records. The database exports three important functions: `GetRecord`, `LockRecord`, and `UnlockRecord`.
+The assignment models database processing requests that manipulate several records. The database consists of an array of `1000-byte-sized` records. The database exports three important functions: **GetRecord**, **LockRecord**, and **UnlockRecord**. 
 
-* `GetRecord`: returns a reference to a record. 
-* `LockRecord` and `UnlockRecord` serve as mutex-locks, giving the calling process or thread exclusive access to a particular record.
+* GetRecord: returns a reference to a record. 
+* LockRecord and UnlockRecord: serve as mutex-locks, giving the calling process or thread exclusive access to a particular record.
 
 Each request updates several records in the database. In order to run a request, a process or thread calls a request's execute function in order to process it. `Launcher` is the base class from which each execution model will derive \(`ProcessPoolLauncher`, `ProcessLauncher`, `ThreadPoolLauncher`, and `ThreadLauncher`\). Each of these classes overrides the launcher's `ExecuteRequest` function.
 
