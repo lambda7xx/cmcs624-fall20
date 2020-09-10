@@ -20,7 +20,7 @@ The process-per-request and process-pool models are implemented using Linux proc
 
 ## Synchronization
 
-This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency is usually covered \(at least theoretically\) in the intro to systems programming courses. We recommend you read through Remzi's OS book [Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf) for some background on pthread's mutex locks, and condition variables if you have not seen them in the past.
+This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency is usually covered \(at least theoretically\) in the intro to systems programming courses. We recommend you read through Remzi's OS book \([Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf)\) for some background on pthread's mutex locks, and condition variables if you have not seen them in the past.
 
 ## Codebase
 
