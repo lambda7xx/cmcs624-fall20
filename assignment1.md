@@ -87,8 +87,8 @@ Compiled and working code for the process-pool, and thread-pool execution models
 
 > Note: Please do not write a serial program to bypass the test. We will check your code manually.
 
-{% hint style="info" %}
-20 points for each execution model. Total 40 points**.**
+{% hint style="success" %}
+20 points for each execution model. Total 40 points.
 {% endhint %}
 
 ## Deliverables - Part 2
@@ -110,11 +110,9 @@ Provide a brief explanation \(between three to four paragraphs\) for the through
 * How and why does throughout change as the maximum number of outstanding requests or pool size change? 
 * In addition, explain the differences between high-contention and low-contention experiments.
 
-```text
-================================================================================
-44 points for performance results / analysis
-================================================================================
-```
+{% hint style="success" %}
+44 points for performance results / analysis.
+{% endhint %}
 
 ## Deliverables - Part 3
 
@@ -125,9 +123,7 @@ Questions
 * The process-pool implementation must copy a request into a process's request buffer. The process-per-request implementation, however, does not need to copy or pass requests between processes. Why?
 * The process-pool implementation requires a request to be copied into a process-local buffer before the request can be executed. On the other hand, the thread-pool implementation can simply use a pointer to the appropriate request. Why?
 
-```text
-================================================================================
+{% hint style="success" %}
 8 points for each response. Total 16 points.
-================================================================================
-```
+{% endhint %}
 
