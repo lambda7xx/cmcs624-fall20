@@ -83,13 +83,13 @@ The thread- and process-pools are managed via a `free-list`. Each process or thr
 
 Compiled and working code for the process-pool, and thread-pool execution models. We will evaluate your code using the `--test` option described above. Each execution model will be tested at pool sizes of 1, 2, 4, 8, 16, 32, 64, 128.
 
-> Note: passing these test cases is the only way to earn credit for your code. We will award no points for code that does not pass test cases. Node: Please do not write a serial program to bypass the test. We will check your code manually.
+> Note: passing these test cases is the only way to earn credit for your code. We will award no points for code that does not pass test cases.
 
-```text
-================================================================================
-20 points for each execution model. Total 40 points
-================================================================================
-```
+> Note: Please do not write a serial program to bypass the test. We will check your code manually.
+
+{% hint style="info" %}
+20 points for each execution model. Total 40 points**.**
+{% endhint %}
 
 ## Deliverables - Part 2
 
