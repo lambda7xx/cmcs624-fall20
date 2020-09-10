@@ -12,5 +12,5 @@ TA: Gang Liao \(gangliao@cs.umd.edu\)
 
 Office Hours: Monday 16:00 - 18:00 \(over Zoom\)
 
-\[Online Assignment Web\]\([https://umd-1.gitbook.io/cmsc624/](https://umd-1.gitbook.io/cmsc624/)\)
+[Assignment Docs](https://umd-1.gitbook.io/cmsc624/)
 
