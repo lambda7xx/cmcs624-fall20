@@ -1,6 +1,10 @@
-# CMSC 624: Assignment 1
+---
+description: CMSC624
+---
 
-In this assignment, you will get some hands-on experience exploring the performance and architectural differences between database system process models. The main challenge of this assignment will be to understand existing code that we are providing you. By reading through this code, we hope you will get a sense of some of the basic implementation differences between thread-based and process-based process models.
+# Assignment 1
+
+In this assignment, you will get some hands-on experience exploring the performance and architectural differences between database system process models. The main challenge of this assignment will be to understand the existing code that we are providing you. By reading through this code, we hope you will get a sense of some of the basic implementation differences between thread-based and process-based process models.
 
 ## Overview
 
@@ -10,13 +14,13 @@ Aside from writing code, this assignment involves **running some performance exp
 
 ## Execution models
 
-The assignment uses Linux's `pthreads` to implement the thread-per-request and thread-pool models. [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with `pthreads` on linux. The assignment codebase only uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread `mutexes` and `signals`.
+The assignment uses Linux's `pthreads` to implement the thread-per-request and thread-pool models. [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with `pthreads` on Linux. The assignment codebase only uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread `mutexes` and `signals`.
 
-The process-per-request and process-pool models are implemented using linux processes \(`fork()`\). Processes communicate with each other using shared memory segments via `mmap`. The provided database class implementation has a few example uses of `mmap`.
+The process-per-request and process-pool models are implemented using Linux processes \(`fork()`\). Processes communicate with each other using shared memory segments via `mmap`. The provided database class implementation has a few example uses of `mmap`.
 
 ## Synchronization
 
-This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency are usually covered \(at least theoretically\) in intro to systems programming courses. We recommend you read through Remzi's OS book [Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf) for some background on pthread's mutex locks and condition variables if you have not seen them in the past.
+This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency is usually covered \(at least theoretically\) in intro to systems programming courses. We recommend you read through Remzi's OS book [Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf) for some background on pthread's mutex locks and condition variables if you have not seen them in the past.
 
 ## Codebase
 
@@ -31,7 +35,7 @@ Each request updates several records in the database. In order to run a request,
 
 ## Command-line Arguments
 
-The provided makefile will compile your executable into a directory `build/db`. The executable takes parameters `--exp_type`, `--max_outstanding`, and `--pool_size`. Each of these three parameters take **integers** as arguments.
+The provided makefile will compile your executable into a directory `build/db`. The executable takes parameters `--exp_type`, `--max_outstanding`, and `--pool_size`. Each of these three parameters takes **integers** as arguments.
 
 > Note: The command-line parsing code is **not robust enough** to deal with incorrectly specified parameter arguments!
 
