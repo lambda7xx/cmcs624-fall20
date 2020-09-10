@@ -6,8 +6,6 @@ description: CMSC624
 
 In this assignment, you will get some hands-on experience exploring the performance and architectural differences between database system process models. The main challenge of this assignment will be to understand the existing code that we are providing you. By reading through this code, we hope you will get a sense of some of the basic implementation differences between thread-based and process-based process models.
 
-Assignment Doc: [gangliao.gitbook.io/cmsc624/](https://gangliao.gitbook.io/cmsc624/)
-
 ## Overview
 
 The amount of code you have to write for this assignment is quite small. In short, we are providing implementations of thread-per worker and process-per-worker process models \(see chapter two of the [Architecture of a Database System](https://dsf.berkeley.edu/papers/fntdb07-architecture.pdf) paper that is in the assigned reading for this semester\) over a simple database stored as an array in main memory. Your goal in this assignment is to implement the process-pool and thread-pool variants of these process models. Even for these variants, we have written most of the code for you --- we have just left **the most interesting parts of the code left for you** to implement. However, if you do not understand the thread-per worker and process-per-worker code that we have provided you, you will likely be unable to add the missing code \(even though it is small\) for the thread-pool and process-pool variants.
