@@ -14,9 +14,9 @@ Aside from writing code, this assignment involves **running some performance exp
 
 ## Execution models
 
-The assignment uses Linux's `pthreads` to implement the thread-per-request and thread-pool models. [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with `pthreads` on Linux. The assignment codebase only uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread `mutexes` and `signals`.
+The assignment uses  Posix Threads to implement the thread-per-request and thread-pool models. [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with pthreads on Linux. The assignment codebase only uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread **mutex lock** and **signal/wait**.
 
-The process-per-request and process-pool models are implemented using Linux processes \(`fork()`\). Processes communicate with each other using shared memory segments via `mmap`. The provided database class implementation has a few example uses of `mmap`.
+The process-per-request and process-pool models are implemented using Linux processes. Processes communicate with each other using shared memory segments via **mmap\(\)**. The provided database class implementation has a few examples of uses of **mmap\(\)**.
 
 ## Synchronization
 
