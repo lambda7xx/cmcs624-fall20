@@ -1,0 +1,61 @@
+#!/bin/bash
+
+LOCKDIR=/tmp/a1-flag
+
+if mkdir $LOCKDIR
+then
+    echo
+    echo '========== PROCESS POOL WITH CONTENTION =========='
+    build/db --contention  --exp_type 0 --pool_size 1;   killall db
+    build/db --contention  --exp_type 0 --pool_size 2;   killall db
+    build/db --contention  --exp_type 0 --pool_size 4;   killall db
+    build/db --contention  --exp_type 0 --pool_size 8;   killall db
+    build/db --contention  --exp_type 0 --pool_size 16;  killall db
+    build/db --contention  --exp_type 0 --pool_size 32;  killall db
+    build/db --contention  --exp_type 0 --pool_size 64;  killall db
+    build/db --contention  --exp_type 0 --pool_size 128; killall db
+    echo
+
+    echo '========== PROCESS PER REQUEST WITH CONTENTION =========='
+    build/db --contention  --exp_type 1 --max_outstanding 1;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 2;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 4;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 8;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 16;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 32;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 64;   killall db
+    build/db --contention  --exp_type 1 --max_outstanding 128;   killall db
+    echo
+
+    echo '========== THREAD POOL WITH CONTENTION =========='
+    build/db --contention  --exp_type 2 --pool_size 1;   killall db
+    build/db --contention  --exp_type 2 --pool_size 2;   killall db
+    build/db --contention  --exp_type 2 --pool_size 4;   killall db
+    build/db --contention  --exp_type 2 --pool_size 8;   killall db
+    build/db --contention  --exp_type 2 --pool_size 16;   killall db
+    build/db --contention  --exp_type 2 --pool_size 32;   killall db
+    build/db --contention  --exp_type 2 --pool_size 64;   killall db
+    build/db --contention  --exp_type 2 --pool_size 128;   killall db
+    echo
+
+    echo '========== THREAD PER REQUEST WITH CONTENTION =========='
+    build/db --contention  --exp_type 3 --max_outstanding 1;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 2;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 4;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 8;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 16;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 32;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 64;   killall db
+    build/db --contention  --exp_type 3 --max_outstanding 128;   killall db
+    echo
+
+    if rmdir $LOCKDIR
+    then
+        echo "Victory is mine"
+    else
+        echo "Could not remove lock dir" >&2
+    fi
+else
+    # Handle error condition
+    echo "Sorry, Others are currently running the assignmen 1. Please try again after half an hour."
+fi
