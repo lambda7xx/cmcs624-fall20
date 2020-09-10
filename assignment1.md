@@ -95,7 +95,9 @@ Compiled and working code for the process-pool, and thread-pool execution models
 
 For each execution model, report throughput while varying the pool size or the maximum outstanding requests parameter. You must report throughput for all four execution models \(process-per-request, thread-per-request, thread-pool, and process-pool\). Measure throughput at the following parameter values \[1, 2, 4, 8, 16, 32, 64, 128\]. As mentioned above, we have provided test scripts \(`lowcontention.sh` and `highcontention.sh`\) which varies all of these parameters for you.
 
-Report these throughput measurements under both high contention and low contention in text files **high-contention.txt** and **low-contention.txt** respectively. Each line of the file should begin with **the name of the execution model**, and **the list of measured throughput values** \(in increasing order of pool size or max outstanding requests\). For example:
+Report these throughput measurements under both high contention and low contention in text files **high-contention.txt** and **low-contention.txt** respectively. Each line of the file should begin with **the name of the execution model**, and **the list of measured throughput values** \(in increasing order of pool size or max outstanding requests\). 
+
+For example:
 
 ```text
 process_pool 2000 3000 4000 5000 6000 7000 ...
