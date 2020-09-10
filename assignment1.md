@@ -10,7 +10,7 @@ In this assignment, you will get some hands-on experience exploring the performa
 
 The amount of code you have to write for this assignment is quite small. In short, we are providing implementations of thread-per worker and process-per-worker process models \(see chapter two of the [Architecture of a Database System](https://dsf.berkeley.edu/papers/fntdb07-architecture.pdf) paper that is in the assigned reading for this semester\) over a simple database stored as an array in main memory. Your goal in this assignment is to implement the process-pool and thread-pool variants of these process models. Even for these variants, we have written most of the code for you --- we have just left **the most interesting parts of the code left for you** to implement. However, if you do not understand the thread-per worker and process-per-worker code that we have provided you, you will likely be unable to add the missing code \(even though it is small\) for the thread-pool and process-pool variants.
 
-Aside from writing code, this assignment involves **running some performance experiments**, and **answering some questions** we ask below. We created a private git repository for each student, all your need is to commit your changes and push them to the private repository. Our grading server will run your code regularly, generate the output files, and automatically commit them back to you.
+Aside from writing code, this assignment involves **running some performance experiments** and **answering some questions** we ask below. We created a private git repository for each student, all your need is to commit your changes and push them to the private repository. Our grading server will run your code regularly, generate the output files, and automatically commit them back to you.
 
 ## Execution models
 
@@ -20,11 +20,11 @@ The process-per-request and process-pool models are implemented using Linux proc
 
 ## Synchronization
 
-This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency is usually covered \(at least theoretically\) in intro to systems programming courses. We recommend you read through Remzi's OS book [Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf) for some background on pthread's mutex locks and condition variables if you have not seen them in the past.
+This assignment uses mutexes to mediate inter-thread and inter-process communication. Concurrency is usually covered \(at least theoretically\) in the intro to systems programming courses. We recommend you read through Remzi's OS book [Thread API](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf), [Condition Variables](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf) for some background on pthread's mutex locks, and condition variables if you have not seen them in the past.
 
 ## Codebase
 
-The assignment models a database processing requests that manipulate several records. The database consists of an array of `1000-byte-sized` records. The database exports three important functions: `GetRecord`, `LockRecord`, and `UnlockRecord`.
+The assignment models database processing requests that manipulate several records. The database consists of an array of `1000-byte-sized` records. The database exports three important functions: `GetRecord`, `LockRecord`, and `UnlockRecord`.
 
 * `GetRecord`: returns a reference to a record. 
 * `LockRecord` and `UnlockRecord` serve as mutex-locks, giving the calling process or thread exclusive access to a particular record.
