@@ -37,7 +37,9 @@ Each request updates several records in the database. In order to run a request,
 
 The provided makefile will compile your executable into a directory `build/db`. The executable takes parameters `--exp_type`, `--max_outstanding`, and `--pool_size`. Each of these three parameters takes **integers** as arguments.
 
-> Note: The command-line parsing code is **not robust enough** to deal with incorrectly specified parameter arguments!
+{% hint style="info" %}
+The command-line parsing code is not robust enough to deal with incorrectly specified parameter arguments!
+{% endhint %}
 
 ### max\_outstanding and pool\_size
 
