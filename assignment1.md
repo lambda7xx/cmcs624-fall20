@@ -73,7 +73,7 @@ If a pair of requests conflict, then one of the requests block while the other m
 
 We have also provided code to test each of your implementations. In order to run a test, run the appropriately configured execution model with the `--test` option. If provided with the `--test` option, the executable will check for correctness using a serial execution model. Running your code with the `--test` option will not measure throughput.
 
-Please put `killall build/db` in your test scripts, otherwise, the processes that were spun off by the assignment will result in hundreds of zombie processes on machines. We have provided test scripts \(`lowcontention.sh` and `highcontention.sh`\) that you can use to generate results.
+If you use your own test scripts, make sure to include `killall build/db` in those scripts, otherwise, the processes that were spun off by the assignment will result in hundreds of zombie processes on machines. Alternatively, we have provided test scripts \(`lowcontention.sh` and `highcontention.sh`\) that you can use to generate results.
 
 ## Hints
 
