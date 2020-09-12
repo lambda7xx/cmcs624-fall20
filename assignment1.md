@@ -93,6 +93,10 @@ Passing these test cases is the only way to earn credit for your code. We will a
 Please do not write a serial program to bypass the test. We will check your code manually.
 {% endhint %}
 
+{% hint style="info" %}
+In order to get comparable performance, please comment out the debugging code, such as the print function.
+{% endhint %}
+
 {% hint style="success" %}
 20 points for each execution model. Total 40 points.
 {% endhint %}
