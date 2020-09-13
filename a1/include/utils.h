@@ -4,8 +4,18 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
-#define PROT_FLAGS (PROT_READ | PROT_WRITE)
+#if __linux__
+#include <linux/version.h>
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
 #define MAP_FLAGS (MAP_SHARED | MAP_ANONYMOUS | MAP_POPULATE)
+#else
+#define MAP_FLAGS (MAP_SHARED | MAP_ANONYMOUS)
+#endif
+#else
+#define MAP_FLAGS (MAP_SHARED | MAP_ANONYMOUS)
+#endif
+
+#define PROT_FLAGS (PROT_READ | PROT_WRITE)
 #define INTER_PROC_SEM 1
 #define INTRA_PROC_SEM 0
 
