@@ -1,6 +1,19 @@
 CFLAGS=-O2 -g -Wall -Wextra -Werror -std=c++0x 
-LIBS=-lpthread -lrt 
+LIBS=-lpthread
 CXX=g++
+
+ifeq '$(findstring ;,$(PATH))' ';'
+    detected_OS := Windows
+else
+    detected_OS := $(shell uname 2>/dev/null || echo Unknown)
+    detected_OS := $(patsubst CYGWIN%,Cygwin,$(detected_OS))
+    detected_OS := $(patsubst MSYS%,MSYS,$(detected_OS))
+    detected_OS := $(patsubst MINGW%,MSYS,$(detected_OS))
+endif
+
+ifneq ($(detected_OS),Darwin)        # Mac OS X
+    LIBS += -lrt
+endif
 
 INCLUDE=include
 SRC=src
