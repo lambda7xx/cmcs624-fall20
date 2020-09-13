@@ -10,11 +10,11 @@ In this assignment, you will get some hands-on experience exploring the performa
 
 The amount of code you have to write for this assignment is quite small. In short, we are providing implementations of thread-per worker and process-per-worker process models \(see chapter two of the [Architecture of a Database System](https://dsf.berkeley.edu/papers/fntdb07-architecture.pdf) paper that is in the assigned reading for this semester\) over a simple database stored as an array in main memory. Your goal in this assignment is to implement the process-pool and thread-pool variants of these process models. Even for these variants, we have written most of the code for you --- we have just left **the most interesting parts of the code left for you** to implement. However, if you do not understand the thread-per worker and process-per-worker code that we have provided you, you will likely be unable to add the missing code \(even though it is small\) for the thread-pool and process-pool variants.
 
-Aside from writing code, this assignment involves **running some performance experiments** and **answering some questions** we ask below. Please **don't** git clone this repository, we will create a private git repository for each student, all your need is to commit your changes and push them to the private repository. Our grading server will run your code regularly, generate the output files, and automatically commit them back to you.
+Aside from writing code, this assignment involves **running some performance experiments** and **answering some questions** we ask below. Please **don't** git clone this repository. Instead, we will create a private git repository for each student, and each student can commit changes and push them to this private repository. Our grading server will run your code regularly, generate the output files, and automatically commit them back to you. This will enable the code from each student to run on an identical server (with the same performance characteristics), so that students do not have to be concerned that any strange performance numbers they may see is the result of their particular choice of hardware. 
 
 ## Execution models
 
-The assignment uses  Posix Threads to implement the thread-per-request and thread-pool models. [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with pthreads on Linux. The assignment codebase only uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread **mutex lock** and **signal/wait**.
+The assignment uses Posix Threads to implement the thread-per-request and thread-pool models. This [Linux Posix Threads Tutorial](http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html) provides a good reference for programming with pthreads on Linux. The assignment codebase uses pthreads for managing threads' lifecycles \(thread creation and deletion\). Inter-thread synchronization is mediated via pthread **mutex lock** and **signal/wait**.
 
 The process-per-request and process-pool models are implemented using Linux processes. Processes communicate with each other using shared memory segments via **mmap\(\)**. The provided database class implementation has a few examples of uses of **mmap\(\)**.
 
@@ -73,7 +73,7 @@ If a pair of requests conflict, then one of the requests block while the other m
 
 We have also provided code to test each of your implementations. In order to run a test, run the appropriately configured execution model with the `--test` option. If provided with the `--test` option, the executable will check for correctness using a serial execution model. Running your code with the `--test` option will not measure throughput.
 
-Please put `killall build/db` in your test scripts, otherwise, the processes that were spun off by the assignment will result in hundreds of zombie processes on machines. We have provided test scripts \(`lowcontention.sh` and `highcontention.sh`\) that you can use to generate results.
+If you use your own test scripts, make sure to include `killall build/db` in those scripts, otherwise, the processes that were spun off by the assignment will result in hundreds of zombie processes on machines. Alternatively, we have provided test scripts \(`lowcontention.sh` and `highcontention.sh`\) that you can use to generate results.
 
 ## Hints
 
@@ -86,11 +86,15 @@ The thread- and process-pools are managed via a `free-list`. Each process or thr
 Compiled and working code for the process-pool, and thread-pool execution models. We will evaluate your code using the `--test` option described above. Each execution model will be tested at pool sizes of 1, 2, 4, 8, 16, 32, 64, 128.
 
 {% hint style="info" %}
-passing these test cases is the only way to earn credit for your code. We will award no points for code that does not pass test cases.
+Passing these test cases is the only way to earn credit for your code. We will award no points for code that does not pass test cases.
 {% endhint %}
 
 {% hint style="info" %}
 Please do not write a serial program to bypass the test. We will check your code manually.
+{% endhint %}
+
+{% hint style="info" %}
+In order to get comparable performance, please comment out the debugging code, such as the print function.
 {% endhint %}
 
 {% hint style="success" %}
@@ -135,3 +139,6 @@ Questions
 8 points for each response. Total 16 points.
 {% endhint %}
 
+## How to submit
+
+Please submit all text files discussed above to the Assignment 1 link on ELMS. You do not need to submit any code, since we have access to your repositories.
