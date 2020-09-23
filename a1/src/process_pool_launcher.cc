@@ -136,13 +136,13 @@ ProcessPoolLauncher::~ProcessPoolLauncher()
         pthread_cond_destroy(launcher_state_->free_list_[i].proc_cond_);
         err = munmap((void *)launcher_state_->free_list_[i].proc_cond_, sizeof(pthread_cond_t));
         assert(err == 0);
+
+        err = munmap((void *)launcher_state_->free_list_[i].request_, RQST_BUF_SZ);
+        assert(err == 0);
+        
+        err = munmap((void *)launcher_state_->free_list_[i], sizeof(proc_state));
+        assert(err == 0);
     }
-
-    err = munmap((void *)launcher_state_->free_list_[0].request_, pool_sz_ * RQST_BUF_SZ);
-    assert(err == 0);
-
-    err = munmap((void *)launcher_state_->free_list_, sizeof(proc_state) * pool_sz_);
-    assert(err == 0);
 
     err = munmap((void *)launcher_state_, sizeof(proc_mgr));
     assert(err == 0);
