@@ -124,24 +124,25 @@ ProcessPoolLauncher::~ProcessPoolLauncher()
     err = munmap((void *)launcher_state_->free_list_mutex_, sizeof(pthread_mutex_t));
     assert(err == 0);
 
-    for (uint32_t i = 0; i < pool_sz_; ++i)
+    while (free_list_ != NULL)
     {
-        err = munmap((void *)launcher_state_->free_list_[i].proc_done_, sizeof(bool));
+        err = munmap((void *)launcher_state_->free_list_[0].proc_done_, sizeof(bool));
         assert(err == 0);
 
-        pthread_mutex_destroy(launcher_state_->free_list_[i].proc_mutex_);
-        err = munmap((void *)launcher_state_->free_list_[i].proc_mutex_, sizeof(pthread_mutex_t));
+        pthread_mutex_destroy(launcher_state_->free_list_[0].proc_mutex_);
+        err = munmap((void *)launcher_state_->free_list_[0].proc_mutex_, sizeof(pthread_mutex_t));
         assert(err == 0);
 
-        pthread_cond_destroy(launcher_state_->free_list_[i].proc_cond_);
-        err = munmap((void *)launcher_state_->free_list_[i].proc_cond_, sizeof(pthread_cond_t));
+        pthread_cond_destroy(launcher_state_->free_list_[0].proc_cond_);
+        err = munmap((void *)launcher_state_->free_list_[0].proc_cond_, sizeof(pthread_cond_t));
         assert(err == 0);
 
-        err = munmap((void *)launcher_state_->free_list_[i].request_, RQST_BUF_SZ);
+        err = munmap((void *)launcher_state_->free_list_[0].request_, RQST_BUF_SZ);
         assert(err == 0);
         
-        err = munmap((void *)launcher_state_->free_list_[i], sizeof(proc_state));
+        err = munmap((void *)launcher_state_->free_list_[0], sizeof(proc_state));
         assert(err == 0);
+        free_list_ = free_list_->list_ptr_;
     }
 
     err = munmap((void *)launcher_state_, sizeof(proc_mgr));
