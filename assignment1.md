@@ -2,7 +2,7 @@
 description: CMSC624
 ---
 
-# Assignment 1
+# Assignment 1: Understanding DB Execution Models
 
 In this assignment, you will get some hands-on experience exploring the performance and architectural differences between database system process models. The main challenge of this assignment will be to understand the existing code that we are providing you. By reading through this code, we hope you will get a sense of some of the basic implementation differences between thread-based and process-based process models.
 
