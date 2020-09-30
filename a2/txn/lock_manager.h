@@ -5,16 +5,10 @@
 #define _LOCK_MANAGER_H_
 
 #include <deque>
-#include <map>
 #include <unordered_map>
 #include <vector>
 
 #include "txn/common.h"
-
-using std::map;
-using std::deque;
-using std::vector;
-using std::unordered_map;
 
 class Txn;
 
@@ -64,7 +58,7 @@ class LockManager
     // Sets '*owners' to contain the txn IDs of all txns holding the lock, and
     // returns the current LockMode of the lock: UNLOCKED if it is not currently
     // held, SHARED or EXCLUSIVE if it is, depending on the current state.
-    virtual LockMode Status(const Key& key, vector<Txn*>* owners) = 0;
+    virtual LockMode Status(const Key& key, std::vector<Txn*>* owners) = 0;
 
    protected:
     // The LockManager's lock table tracks all lock requests. For a given key, if
@@ -99,12 +93,12 @@ class LockManager
         Txn* txn_;       // Pointer to txn requesting the lock.
         LockMode mode_;  // Specifies whether this is a read or write lock request.
     };
-    std::unordered_map<Key, deque<LockRequest>*> lock_table_;
+    std::unordered_map<Key, std::deque<LockRequest>*> lock_table_;
 
     // Queue of pointers to transactions that:
     //  (a) were previously blocked on acquiring at least one lock, and
     //  (b) have now acquired all locks that they have requested.
-    deque<Txn*>* ready_txns_;
+    std::deque<Txn*>* ready_txns_;
 
     // Tracks all txns still waiting on acquiring at least one lock. Entries in
     // 'txn_waits_' are invalided by any call to Release() with the entry's
@@ -116,24 +110,24 @@ class LockManager
 class LockManagerA : public LockManager
 {
    public:
-    explicit LockManagerA(deque<Txn*>* ready_txns);
+    explicit LockManagerA(std::deque<Txn*>* ready_txns);
     inline virtual ~LockManagerA() {}
     virtual bool ReadLock(Txn* txn, const Key& key);
     virtual bool WriteLock(Txn* txn, const Key& key);
     virtual void Release(Txn* txn, const Key& key);
-    virtual LockMode Status(const Key& key, vector<Txn*>* owners);
+    virtual LockMode Status(const Key& key, std::vector<Txn*>* owners);
 };
 
 // Version of the LockManager implementing both shared and exclusive locks.
 class LockManagerB : public LockManager
 {
    public:
-    explicit LockManagerB(deque<Txn*>* ready_txns);
+    explicit LockManagerB(std::deque<Txn*>* ready_txns);
     inline virtual ~LockManagerB() {}
     virtual bool ReadLock(Txn* txn, const Key& key);
     virtual bool WriteLock(Txn* txn, const Key& key);
     virtual void Release(Txn* txn, const Key& key);
-    virtual LockMode Status(const Key& key, vector<Txn*>* owners);
+    virtual LockMode Status(const Key& key, std::vector<Txn*>* owners);
 };
 
 #endif  // _LOCK_MANAGER_H_

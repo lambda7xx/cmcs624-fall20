@@ -1,17 +1,12 @@
-
-
 #include "txn/lock_manager.h"
 
-#include <set>
 #include <string>
 
 #include "utils/testing.h"
 
-using std::set;
-
 TEST(LockManagerA_SimpleLocking)
 {
-    deque<Txn*> ready_txns;
+    std::deque<Txn*> ready_txns;
     LockManagerA lm(&ready_txns);
     vector<Txn*> owners;
 
@@ -106,9 +101,9 @@ TEST(LockManagerA_LocksReleasedOutOfOrder)
 
 TEST(LockManagerB_SimpleLocking)
 {
-    deque<Txn*> ready_txns;
+    std::deque<Txn*> ready_txns;
     LockManagerB lm(&ready_txns);
-    vector<Txn*> owners;
+    std::vector<Txn*> owners;
 
     Txn* t1 = reinterpret_cast<Txn*>(1);
     Txn* t2 = reinterpret_cast<Txn*>(2);
@@ -158,9 +153,9 @@ TEST(LockManagerB_SimpleLocking)
 
 TEST(LockManagerB_LocksReleasedOutOfOrder)
 {
-    deque<Txn*> ready_txns;
+    std::deque<Txn*> ready_txns;
     LockManagerB lm(&ready_txns);
-    vector<Txn*> owners;
+    std::vector<Txn*> owners;
 
     Txn* t1 = reinterpret_cast<Txn*>(1);
     Txn* t2 = reinterpret_cast<Txn*>(2);

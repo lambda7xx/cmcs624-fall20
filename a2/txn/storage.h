@@ -3,15 +3,10 @@
 #define _STORAGE_H_
 
 #include <limits.h>
-#include <deque>
-#include <map>
 #include <unordered_map>
 
 #include "txn/common.h"
 #include "txn/txn.h"
-
-using std::deque;
-using std::map;
 
 class Storage
 {

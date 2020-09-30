@@ -10,9 +10,6 @@
 
 #include <assert.h>
 
-using std::queue;
-using std::set;
-
 /// @class AtomicMap<K, V>
 ///
 /// Atomically readable, atomically mutable unordered associative container.
@@ -130,7 +127,7 @@ class AtomicSet
     }
 
    private:
-    set<V> set_;
+    std::set<V> set_;
     boost::shared_mutex mutex_;
 };
 
@@ -223,7 +220,7 @@ class AtomicQueue
     }
 
    private:
-    queue<T> queue_;
+    std::queue<T> queue_;
     std::mutex mutex_;
 };
 

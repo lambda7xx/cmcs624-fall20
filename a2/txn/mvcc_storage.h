@@ -4,6 +4,7 @@
 
 #include "txn/storage.h"
 
+#include <deque>
 #include <memory>
 #include <mutex>
 
@@ -55,7 +56,7 @@ class MVCCStorage : public Storage
     }
 
     // Storage for MVCC, each key has a linklist of versions
-    std::unordered_map<Key, deque<Version*>*> mvcc_data_;
+    std::unordered_map<Key, std::deque<Version*>*> mvcc_data_;
 
     // Mutexs for each key
     std::unordered_map<Key, std::unique_ptr<std::mutex>> mutexs_;

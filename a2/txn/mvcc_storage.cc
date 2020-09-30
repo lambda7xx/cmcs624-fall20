@@ -15,7 +15,7 @@ void MVCCStorage::InitStorage()
 // Free memory.
 MVCCStorage::~MVCCStorage()
 {
-    for (std::unordered_map<Key, deque<Version*>*>::iterator it = mvcc_data_.begin(); it != mvcc_data_.end(); ++it)
+    for (std::unordered_map<Key, std::deque<Version*>*>::iterator it = mvcc_data_.begin(); it != mvcc_data_.end(); ++it)
     {
         delete it->second;
     }
