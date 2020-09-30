@@ -52,3 +52,27 @@ In this assignment, you will need to make changes to the following files/classes
 | txn/txn_processor.cc | `TxnProcessor::RunOCCScheduler` method (Part 2), `TxnProcessor::RunOCCParallelScheduler` method (Part 3), and `TxnProcessor::RunMVCCScheduler` method (Part 4) |
 | txn/mvcc_storage.cc | `MVCCStorage::Read` method (Part 4), `MVCCStorage::Write` method (Part 4), and `MVCCStorage::CheckWrite` method (Part 4) |
 
+However, to understand what's going on in the framework, you will need to look through most of the files in the `txn/` directory. We suggest looking first at the **TxnProcessor** object (`txn/txn_processor.h`) and in particular the **TxnProcessor::RunSerialScheduler()** and **TxnProcessor::RunLockingScheduler()** methods (`txn/txn_processor.cc`) and examining how it interacts with various objects in the system.
+
+
+## Part 1A: Simple Locking (exclusive locks only)
+
+Once you've looked through the code and are somewhat familiar with the overall structure and flow, you'll implement a simplified version of two-phase locking. The protocol goes like this:
+
+1. Upon entering the system, each transaction requests an **EXCLUSIVE** lock on **EVERY** item that it will either read or write.
+2. If any lock request is denied:
+   2a) If the entire transaction involves just a single read or write request, then have the transaction simply wait until the request is granted and then proceed to step (3).
+   2b) Otherwise, immediately release all locks that were granted before this denial, and immediately abort and queue the transaction for restart at a later point.
+3. Execute the program logic. Note: We only get to this point if we didn't get to step (2b) which aborts the transaction.
+4. Release **ALL** locks at **commit/abort time**.
+
+In order to avoid the complexities of creating a thread-safe lock manager in this assignment, our implementation only has a single thread that manages the state of the lock manager. This thread performs all the lock requests on behalf of the transactions and then hands over control to a separate execution thread in step (3) above. Note that for workloads where transactions make heavy use of the lock manager, this single lock manager thread may become a performance bottleneck as it has to request and release locks on behalf of ALL transactions.
+
+To help you get comfortable using the transaction processing framework, most of this algorithm is already implemented in `TxnProcessor::RunLockingScheduler()`. Locks are requested and released at all the right times, and all necessary data structures for an efficient lock manager are already in place. All you need to do is implement the **WriteLock**, **Release**, and **Status** methods in the class `LockManagerA`. Make sure you look at the file `lock_manager.h` which explains the data structures that you will be using to queue up requests for locks in the lock manager.
+
+The test file `txn/lock_manager_test.cc` provides some rudimentary correctness tests for your lock manager implementations, but additional tests may be added when we grade the assignment. We therefore suggest that you augment the tests with any additional cases you can think of that the existing tests do not cover.
+
+
+{% hint style="success" %}
+10 points for Part 1A.
+{% endhint %}
