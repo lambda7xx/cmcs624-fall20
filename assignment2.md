@@ -27,7 +27,7 @@ In the code, you'll see that it contains two subdirectories---`txn` and `utils`.
 To build and test the system, you can run
 
 ```shell
-  make test
+make test
 ```
 
 At any time, this will first compile the system; if this succeeds with no errors, it will also run two test scripts: one which performs some basic correctness tests of your lock manager implementation, and a second which profiles performance of the system. This second one takes a number of minutes to run, but you can cancel it at any time by pressing `ctrl-C`. 
@@ -40,4 +40,15 @@ When implementing your solutions, please:
 
 * Comment your header files & code thoroughly in the manner demonstrated in the rest of the framework.
 * Organize your code logically.
+* Use descriptive variable names.
+
+## Codebase
+
+In this assignment, you will need to make changes to the following files/classes/methods:
+
+| source file | methods |
+| :--- | :--- |
+| txn/lock_manager.cc | All methods for classes `LockManagerA` (Part 1A) and `LockManagerB` (Part 1B) |
+| txn/txn_processor.cc | `TxnProcessor::RunOCCScheduler` method (Part 2), `TxnProcessor::RunOCCParallelScheduler` method (Part 3), and `TxnProcessor::RunMVCCScheduler` method (Part 4) |
+| txn/mvcc_storage.cc | `MVCCStorage::Read` method (Part 4), `MVCCStorage::Write` method (Part 4), and `MVCCStorage::CheckWrite` method (Part 4) |
 
