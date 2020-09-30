@@ -256,4 +256,60 @@ Pseudocode for the algorithm to implement (in the `RunMVCCScheduler` method):
 3-8 points for each response, total 33 points.
 {% endhint %}
 
+After implementing both locking schemes, both OCC schemes, and the MVCC scheme, please respond to the following questions in **analysis.txt** (text only, no formatting please).
 
+1. Carpe datum. (2 points)
+
+Run `make test` and report the performance numbers given by `txn_processor_test`. 
+
+{% hint style="info" %}
+When you finish the code part, we will run your code on our test server, and commit the results back to you.
+{% endhint %}
+
+2. Simulations are doomed to succeed. (4 points)
+
+Transaction durations are accomplished simply by forcing the thread executing each transaction to run in a busy loop for approximately the amount of time specified. This is supposed to simulate transaction logic --- e.g. the application might run some propietary customer scoring function to estimate the total value of the customer after reading in the customer record from the database. Please list **at least two weaknesses** of this simulation --- i.e. give two reasons why performance of the different concurrency control schemes you experimented with for this assignment would change relative to each other if we ran actual application code instead of just simulating it with a busy loop.
+
+3. Locking manager (4 points)
+
+Explain the performance difference between Locking A and Locking B: 
+
+- [ ] When does Locking A perform better than Locking B? Why? 
+- [ ] When does Locking B perform better than Locking A? Why? 
+
+Neither of these locking schemes is equivalent to standard two-phase locking. Compare and contrast Locking B with standard two-phase locking (where each lock is acquired immediately before it is needed instead of acquiring all locks at the beginning of a transaction).
+
+- [ ] When would two-phase locking perform better than Locking B?
+- [ ] When would Locking B perform better than two-phase locking?
+
+4. OCCam's Razor (4 points)
+
+The OCC with serial validation is simpler than OCC with parallel validation.  
+
+- [ ] How did the two algorithms compare with each other in this simulation? Why do you think that is the case?
+- [ ] How does this compare to the OCC paper that we read for class?
+- [ ] What is the biggest reason for the difference between your results and the what you expected after reading the OCC paper?
+
+If you did not follow the given pseudocode for OCC with parallel validation, give your pseudocode and argue why it is better.
+
+5. OCC vs. Locking B  (7 points)
+
+If your code is correct, you probably found that OCC and Locking B were approximately the same performance for the **high contention** read-only (5-records) test. But OCC beat Locking B for the **high contention** read-only (30-records) test. 
+
+- [ ] What is the reason for OCC suddenly being better for 30-record transactions? 
+- [ ] Furthermore, OCC loses to Locking B for the **high contention** read-write test (both for 5 record transactions and 10 record transactions). Why? 
+- [ ] Furthermore, why does the relative difference between OCC and Locking B get larger for transactions longer than 0.1 ms in the **high contention** read-write test?
+
+6. MVCC vs. OCC/Locking (7 points)
+
+- [ ] For the read-write tests, MVCC performs worse than OCC and Locking. Why? 
+- [ ] MVCC even sometimes does worse than serial. Why?
+- [ ] Yet for the mixed read-only/read-write experiment it performs the best, even though it wasn't the best for either read-only nor read-write. Why?
+
+If you wrote your own version, please explain why it's better than the ones presented here.
+
+7. MVCC pseudocode (4 points)
+
+- [ ] Why did our MVCC pseudocode request read locks before each read?
+- [ ] In particular, what would happen if you didn't acquire these read locks?
+- [ ] How long do these locks have to be held?
