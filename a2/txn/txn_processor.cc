@@ -150,7 +150,7 @@ void TxnProcessor::RunLockingScheduler()
         {
             bool blocked = false;
             // Request read locks.
-            for (std::set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (auto it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 if (!lm_->ReadLock(txn, *it))
                 {
@@ -159,13 +159,10 @@ void TxnProcessor::RunLockingScheduler()
                     if (txn->readset_.size() + txn->writeset_.size() > 1)
                     {
                         // Release all locks that already acquired
-                        for (std::set<Key>::iterator it_reads = txn->readset_.begin(); true; ++it_reads)
+                        for (auto it_reads = txn->readset_.begin(); true; ++it_reads)
                         {
                             lm_->Release(txn, *it_reads);
-                            if (it_reads == it)
-                            {
-                                break;
-                            }
+                            if (it_reads == it) break;
                         }
                         break;
                     }
@@ -175,7 +172,7 @@ void TxnProcessor::RunLockingScheduler()
             if (blocked == false)
             {
                 // Request write locks.
-                for (std::set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+                for (auto it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
                 {
                     if (!lm_->WriteLock(txn, *it))
                     {
@@ -184,13 +181,12 @@ void TxnProcessor::RunLockingScheduler()
                         if (txn->readset_.size() + txn->writeset_.size() > 1)
                         {
                             // Release all read locks that already acquired
-                            for (std::set<Key>::iterator it_reads = txn->readset_.begin();
-                                 it_reads != txn->readset_.end(); ++it_reads)
+                            for (auto it_reads = txn->readset_.begin(); it_reads != txn->readset_.end(); ++it_reads)
                             {
                                 lm_->Release(txn, *it_reads);
                             }
                             // Release all write locks that already acquired
-                            for (std::set<Key>::iterator it_writes = txn->writeset_.begin(); true; ++it_writes)
+                            for (auto it_writes = txn->writeset_.begin(); true; ++it_writes)
                             {
                                 lm_->Release(txn, *it_writes);
                                 if (it_writes == it)
@@ -239,12 +235,12 @@ void TxnProcessor::RunLockingScheduler()
             }
 
             // Release read locks.
-            for (std::set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (auto it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
             // Release write locks.
-            for (std::set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+            for (auto it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
