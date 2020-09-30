@@ -57,6 +57,10 @@ However, to understand what's going on in the framework, you will need to look t
 
 ## Part 1A: Simple Locking (exclusive locks only)
 
+{% hint style="success" %}
+10 points for Part 1A.
+{% endhint %}
+
 Once you've looked through the code and are somewhat familiar with the overall structure and flow, you'll implement a simplified version of two-phase locking. The protocol goes like this:
 
 1. Upon entering the system, each transaction requests an **EXCLUSIVE** lock on **EVERY** item that it will either read or write.
@@ -71,8 +75,3 @@ In order to avoid the complexities of creating a thread-safe lock manager in thi
 To help you get comfortable using the transaction processing framework, most of this algorithm is already implemented in `TxnProcessor::RunLockingScheduler()`. Locks are requested and released at all the right times, and all necessary data structures for an efficient lock manager are already in place. All you need to do is implement the **WriteLock**, **Release**, and **Status** methods in the class `LockManagerA`. Make sure you look at the file `lock_manager.h` which explains the data structures that you will be using to queue up requests for locks in the lock manager.
 
 The test file `txn/lock_manager_test.cc` provides some rudimentary correctness tests for your lock manager implementations, but additional tests may be added when we grade the assignment. We therefore suggest that you augment the tests with any additional cases you can think of that the existing tests do not cover.
-
-
-{% hint style="success" %}
-10 points for Part 1A.
-{% endhint %}
