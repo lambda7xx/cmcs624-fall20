@@ -139,7 +139,7 @@ ProcessPoolLauncher::~ProcessPoolLauncher()
 
         err = munmap((void *)launcher_state_->free_list_[0].request_, RQST_BUF_SZ);
         assert(err == 0);
-        
+
         err = munmap((void *)launcher_state_->free_list_[0], sizeof(proc_state));
         assert(err == 0);
         free_list_ = free_list_->list_ptr_;

@@ -27,30 +27,31 @@ using std::vector;
 /// Note: Vec is NOT fast, and should NOT be used in benchmarking or production
 ///       code.
 ///
-template<class T>
-class Vec {
- public:
-  inline Vec() {}
-  inline Vec(const vector<T>& v) : v_(v) {}
-  inline Vec(const Vec<T>& vec) : v_(vec.v_) {}
+template <class T>
+class Vec
+{
+   public:
+    inline Vec() {}
+    inline Vec(const vector<T>& v) : v_(v) {}
+    inline Vec(const Vec<T>& vec) : v_(vec.v_) {}
+    // All but the last element in the terse vector declaration must be preceded
+    // by '|'.
+    inline Vec& operator|(T t)
+    {
+        v_.push_back(t);
+        return *this;
+    }
 
-  // All but the last element in the terse vector declaration must be preceded
-  // by '|'.
-  inline Vec& operator | (T t) {
-    v_.push_back(t);
-    return *this;
-  }
+    // The final element in the terse vector declaration must be preceded by '||'.
+    inline vector<T> operator||(T t)
+    {
+        v_.push_back(t);
+        return v_;
+    }
 
-  // The final element in the terse vector declaration must be preceded by '||'.
-  inline vector<T> operator||(T t) {
-    v_.push_back(t);
-    return v_;
-  }
-
- private:
-  // Vector being constructed.
-  vector<T> v_;
+   private:
+    // Vector being constructed.
+    vector<T> v_;
 };
 
 #endif  // _DB_UTILS_VEC_H_
-
