@@ -6,7 +6,7 @@
 #include "txn/lock_manager.h"
 
 // Thread & queue counts for StaticThreadPool initialization.
-#define THREAD_COUNT 8
+#define THREAD_COUNT 16
 
 TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_unique_id_(1)
 {
@@ -65,11 +65,10 @@ void TxnProcessor::NewTxnRequest(Txn* txn)
 {
     // Atomically assign the txn a new number and add it to the incoming txn
     // requests queue.
-    mutex_.Lock();
+    const std::lock_guard<std::mutex> lock(mutex_);
     txn->unique_id_ = next_unique_id_;
     next_unique_id_++;
-    txn_requests_.Push(txn);
-    mutex_.Unlock();
+    txn_requests_.UnSafePush(txn);
 }
 
 Txn* TxnProcessor::GetTxnResult()
@@ -213,11 +212,10 @@ void TxnProcessor::RunLockingScheduler()
             }
             else if (blocked == true && (txn->writeset_.size() + txn->readset_.size() > 1))
             {
-                mutex_.Lock();
+                const std::lock_guard<std::mutex> lock(mutex_);
                 txn->unique_id_ = next_unique_id_;
                 next_unique_id_++;
-                txn_requests_.Push(txn);
-                mutex_.Unlock();
+                txn_requests_.UnSafePush(txn);
             }
         }
 
@@ -264,7 +262,7 @@ void TxnProcessor::RunLockingScheduler()
             ready_txns_.pop_front();
 
             // Start txn running in its own thread.
-            tp_.RunTask(new Method<TxnProcessor, void, Txn*>(this, &TxnProcessor::ExecuteTxn, txn));
+            tp_.enqueue([&]() { this->ExecuteTxn(txn); });
         }
     }
 }

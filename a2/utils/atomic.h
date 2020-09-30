@@ -2,21 +2,21 @@
 #ifndef _DB_UTILS_ATOMIC_H_
 #define _DB_UTILS_ATOMIC_H_
 
+#include <boost/thread/shared_mutex.hpp>
+#include <mutex>
 #include <queue>
 #include <set>
 #include <unordered_map>
 
 #include <assert.h>
-#include "utils/mutex.h"
 
 using std::queue;
 using std::set;
-using std::unordered_map;
 
 /// @class AtomicMap<K, V>
 ///
 /// Atomically readable, atomically mutable unordered associative container.
-/// Implemented as a std::tr1::unordered_map guarded by a pthread rwlock.
+/// Implemented as a std::unordered_map guarded by a pthread rwlock.
 /// Supports CRUD operations only. Iterators are NOT supported.
 template <typename K, typename V>
 class AtomicMap
@@ -26,46 +26,38 @@ class AtomicMap
     // Returns the number of key-value pairs currently stored in the map.
     int Size()
     {
-        mutex_.ReadLock();
-        int size = map_.size();
-        mutex_.Unlock();
-        return size;
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        return map_.size();
     }
 
     // Returns true if the map contains a pair with key equal to 'key'.
     bool Contains(const K& key)
     {
-        mutex_.ReadLock();
-        int count = map_.count(key);
-        mutex_.Unlock();
-        return count > 0;
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        return map_.count(key) > 0;
     }
 
     // If the map contains a pair with key 'key', sets '*value' equal to the
     // associated value and returns true, else returns false.
     bool Lookup(const K& key, V* value)
     {
-        mutex_.ReadLock();
-        if (map_.count(key) != 0)
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        auto search = map_.find(key);
+        if (search != map_.end())
         {
-            *value = map_[key];
-            mutex_.Unlock();
+            *value = search->second;
             return true;
         }
-        else
-        {
-            mutex_.Unlock();
-            return false;
-        }
+        return false;
     }
 
     // Atomically inserts the pair (key, value) into the map (clobbering any
     // previous pair with key equal to 'key'.
     void Insert(const K& key, const V& value)
     {
-        mutex_.WriteLock();
+        boost::upgrade_lock<boost::shared_mutex> lock(mutex_);
+        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
         map_[key] = value;
-        mutex_.Unlock();
     }
 
     // Synonym for 'Insert(key, value)'.
@@ -73,14 +65,14 @@ class AtomicMap
     // Atomically erases any pair with key 'key' from the map.
     void Erase(const K& key)
     {
-        mutex_.WriteLock();
+        boost::upgrade_lock<boost::shared_mutex> lock(mutex_);
+        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
         map_.erase(key);
-        mutex_.Unlock();
     }
 
    private:
-    unordered_map<K, V> map_;
-    MutexRW mutex_;
+    std::unordered_map<K, V> map_;
+    boost::shared_mutex mutex_;
 };
 
 /// @class AtomicSet<K>
@@ -96,57 +88,50 @@ class AtomicSet
     // Returns the number of key-value pairs currently stored in the map.
     int Size()
     {
-        mutex_.ReadLock();
-        int size = set_.size();
-        mutex_.Unlock();
-        return size;
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        return set_.size();
     }
 
     // Returns true if the set contains V value.
     bool Contains(const V& value)
     {
-        mutex_.ReadLock();
-        int count = set_.count(value);
-        mutex_.Unlock();
-        return count > 0;
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        return set_.count(value) > 0;
     }
 
     // Atomically inserts the value into the set.
     void Insert(const V& value)
     {
-        mutex_.WriteLock();
+        boost::upgrade_lock<boost::shared_mutex> lock(mutex_);
+        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
         set_.insert(value);
-        mutex_.Unlock();
     }
 
     // Atomically erases the object value from the set.
     void Erase(const V& value)
     {
-        mutex_.WriteLock();
+        boost::upgrade_lock<boost::shared_mutex> lock(mutex_);
+        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
         set_.erase(value);
-        mutex_.Unlock();
     }
 
     V GetFirst()
     {
-        mutex_.WriteLock();
-        V first = *(set_.begin());
-        mutex_.Unlock();
-        return first;
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
+        return *(set_.begin());
     }
 
     // Returns a copy of the underlying set.
     set<V> GetSet()
     {
-        mutex_.ReadLock();
+        boost::shared_lock<boost::shared_mutex> lock(mutex_);
         set<V> my_set(set_);
-        mutex_.Unlock();
         return my_set;
     }
 
    private:
     set<V> set_;
-    MutexRW mutex_;
+    boost::shared_mutex mutex_;
 };
 
 /// @class AtomicQueue<T>
@@ -159,39 +144,39 @@ class AtomicQueue
 {
    public:
     AtomicQueue() {}
+    // AtomicQueue(const AtomicQueue&) = delete;
+    // AtomicQueue& operator=(const AtomicQueue&) = delete;
+
     // Returns the number of elements currently in the queue.
     int Size()
     {
-        mutex_.Lock();
+        std::unique_lock<std::mutex> mlock(mutex_);
         int size = queue_.size();
-        mutex_.Unlock();
         return size;
     }
 
     // Atomically pushes 'item' onto the queue.
     void Push(const T& item)
     {
-        mutex_.Lock();
-        queue_.push(item);
-        mutex_.Unlock();
+        std::unique_lock<std::mutex> mlock(mutex_);
+        queue_.push(std::move(item));
     }
 
+    void UnSafePush(const T& item) { queue_.push(item); }
     // If the queue is non-empty, (atomically) sets '*result' equal to the front
     // element, pops the front element from the queue, and returns true,
     // otherwise returns false.
     bool Pop(T* result)
     {
-        mutex_.Lock();
+        std::unique_lock<std::mutex> mlock(mutex_);
         if (!queue_.empty())
         {
             *result = queue_.front();
             queue_.pop();
-            mutex_.Unlock();
             return true;
         }
         else
         {
-            mutex_.Unlock();
             return false;
         }
     }
@@ -200,10 +185,10 @@ class AtomicQueue
     // returns false.
     bool PushNonBlocking(const T& item)
     {
-        if (mutex_.TryLock())
+        if (mutex_.try_lock())
         {
-            queue_.push(item);
-            mutex_.Unlock();
+            queue_.push(std::move(item));
+            mutex_.unlock();
             return true;
         }
         else
@@ -216,18 +201,18 @@ class AtomicQueue
     // true, else returns false.
     bool PopNonBlocking(T* result)
     {
-        if (mutex_.TryLock())
+        if (mutex_.try_lock())
         {
             if (!queue_.empty())
             {
                 *result = queue_.front();
                 queue_.pop();
-                mutex_.Unlock();
+                mutex_.unlock();
                 return true;
             }
             else
             {
-                mutex_.Unlock();
+                mutex_.unlock();
                 return false;
             }
         }
@@ -239,108 +224,7 @@ class AtomicQueue
 
    private:
     queue<T> queue_;
-    Mutex mutex_;
-};
-
-// An atomically modifiable object. T is required to be a simple numeric type
-// or simple struct.
-template <typename T>
-class Atomic
-{
-   public:
-    Atomic() {}
-    Atomic(T init) : value_(init) {}
-    // Returns the current value.
-    T operator*() { return value_; }
-    // Atomically increments the value.
-    void operator++()
-    {
-        mutex_.Lock();
-        value_++;
-        mutex_.Unlock();
-    }
-
-    // Atomically increments the value by 'x'.
-    void operator+=(T x)
-    {
-        mutex_.Lock();
-        value_ += x;
-        mutex_.Unlock();
-    }
-
-    // Atomically decrements the value.
-    void operator--()
-    {
-        mutex_.Lock();
-        value_--;
-        mutex_.Unlock();
-    }
-
-    // Atomically decrements the value by 'x'.
-    void operator-=(T x)
-    {
-        mutex_.Lock();
-        value_ -= x;
-        mutex_.Unlock();
-    }
-
-    // Atomically multiplies the value by 'x'.
-    void operator*=(T x)
-    {
-        mutex_.Lock();
-        value_ *= x;
-        mutex_.Unlock();
-    }
-
-    // Atomically divides the value by 'x'.
-    void operator/=(T x)
-    {
-        mutex_.Lock();
-        value_ /= x;
-        mutex_.Unlock();
-    }
-
-    // Atomically %'s the value by 'x'.
-    void operator%=(T x)
-    {
-        mutex_.Lock();
-        value_ %= x;
-        mutex_.Unlock();
-    }
-
-    // Atomically assigns the value to equal 'x'.
-    void operator=(T x)
-    {
-        mutex_.Lock();
-        value_ = x;
-        mutex_.Unlock();
-    }
-
-    // Checks if the value is equal to 'old_value'. If so, atomically sets the
-    // value to 'new_value' and returns true, otherwise sets '*old_value' equal
-    // to the value at the time of the comparison and returns false.
-    //
-    // TODO(alex): Use C++ <atomic> library to improve performance?
-    bool CAS(T* old_value, T new_value)
-    {
-        mutex_.Lock();
-        if (value_ == *old_value)
-        {
-            value_ = new_value;
-            mutex_.Unlock();
-            return true;
-        }
-        else
-        {
-            *old_value = value_;
-            mutex_.Unlock();
-            return false;
-        }
-    }
-
-   private:
-    T value_;
-    Mutex mutex_;
+    std::mutex mutex_;
 };
 
 #endif  // _DB_UTILS_ATOMIC_H_

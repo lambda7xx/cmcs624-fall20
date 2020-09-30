@@ -9,9 +9,7 @@
 
 #include "txn/common.h"
 #include "txn/txn.h"
-#include "utils/mutex.h"
 
-using std::unordered_map;
 using std::deque;
 using std::map;
 
@@ -44,10 +42,10 @@ class Storage
     friend class TxnProcessor;
 
     // Collection of <key, value> pairs. Use this for single-version storage
-    unordered_map<Key, Value> data_;
+    std::unordered_map<Key, Value> data_;
 
     // Timestamps at which each key was last updated.
-    unordered_map<Key, double> timestamps_;
+    std::unordered_map<Key, double> timestamps_;
 };
 
 #endif  // _STORAGE_H_

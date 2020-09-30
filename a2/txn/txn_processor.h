@@ -2,8 +2,10 @@
 #ifndef _TXN_PROCESSOR_H_
 #define _TXN_PROCESSOR_H_
 
+#include <atomic>
 #include <deque>
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "txn/common.h"
@@ -12,13 +14,12 @@
 #include "txn/storage.h"
 #include "txn/txn.h"
 #include "utils/atomic.h"
-#include "utils/condition.h"
-#include "utils/mutex.h"
-#include "utils/static_thread_pool.h"
+#include "utils/thread_pool.h"
 
 using std::deque;
 using std::map;
 using std::string;
+using std::mutex;
 
 // The TxnProcessor supports five different execution modes, corresponding to
 // the four parts of assignment 2, plus a simple serial (non-concurrent) mode.
@@ -105,14 +106,14 @@ class TxnProcessor
     CCMode mode_;
 
     // Thread pool managing all threads used by TxnProcessor.
-    StaticThreadPool tp_;
+    ThreadPool tp_;
 
     // Data storage used for all modes.
     Storage* storage_;
 
     // Next valid unique_id, and a mutex to guard incoming txn requests.
     int next_unique_id_;
-    Mutex mutex_;
+    std::mutex mutex_;
 
     // Queue of incoming transaction requests.
     AtomicQueue<Txn*> txn_requests_;
@@ -135,7 +136,7 @@ class TxnProcessor
     AtomicSet<Txn*> active_set_;
 
     // Used it for critical section in parallel occ.
-    Mutex active_set_mutex_;
+    std::mutex active_set_mutex_;
 
     // Lock Manager used for LOCKING concurrency implementations.
     LockManager* lm_;

@@ -99,7 +99,7 @@ class LockManager
         Txn* txn_;       // Pointer to txn requesting the lock.
         LockMode mode_;  // Specifies whether this is a read or write lock request.
     };
-    unordered_map<Key, deque<LockRequest>*> lock_table_;
+    std::unordered_map<Key, deque<LockRequest>*> lock_table_;
 
     // Queue of pointers to transactions that:
     //  (a) were previously blocked on acquiring at least one lock, and
@@ -109,7 +109,7 @@ class LockManager
     // Tracks all txns still waiting on acquiring at least one lock. Entries in
     // 'txn_waits_' are invalided by any call to Release() with the entry's
     // txn.
-    unordered_map<Txn*, int> txn_waits_;
+    std::unordered_map<Txn*, int> txn_waits_;
 };
 
 // Version of the LockManager implementing ONLY exclusive locks.

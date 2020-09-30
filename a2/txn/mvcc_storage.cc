@@ -8,33 +8,27 @@ void MVCCStorage::InitStorage()
     for (int i = 0; i < 1000000; i++)
     {
         Write(i, 0, 0);
-        Mutex* key_mutex = new Mutex();
-        mutexs_[i]       = key_mutex;
+        mutexs_[i] = this->make_unique<std::mutex>();
     }
 }
 
 // Free memory.
 MVCCStorage::~MVCCStorage()
 {
-    for (unordered_map<Key, deque<Version*>*>::iterator it = mvcc_data_.begin(); it != mvcc_data_.end(); ++it)
+    for (std::unordered_map<Key, deque<Version*>*>::iterator it = mvcc_data_.begin(); it != mvcc_data_.end(); ++it)
     {
         delete it->second;
     }
 
     mvcc_data_.clear();
 
-    for (unordered_map<Key, Mutex*>::iterator it = mutexs_.begin(); it != mutexs_.end(); ++it)
-    {
-        delete it->second;
-    }
-
     mutexs_.clear();
 }
 
 // Lock the key to protect its version_list. Remember to lock the key when you read/update the version_list
-void MVCCStorage::Lock(Key key) { mutexs_[key]->Lock(); }
+void MVCCStorage::Lock(Key key) { mutexs_[key]->lock(); }
 // Unlock the key.
-void MVCCStorage::Unlock(Key key) { mutexs_[key]->Unlock(); }
+void MVCCStorage::Unlock(Key key) { mutexs_[key]->unlock(); }
 // MVCC Read
 bool MVCCStorage::Read(Key key, Value* result, int txn_unique_id)
 {
