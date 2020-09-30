@@ -32,7 +32,7 @@ TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_u
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     CPU_ZERO(&cpuset);
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 15; i++)
     {
         CPU_SET(i, &cpuset);
     }
@@ -150,7 +150,7 @@ void TxnProcessor::RunLockingScheduler()
         {
             bool blocked = false;
             // Request read locks.
-            for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (std::set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 if (!lm_->ReadLock(txn, *it))
                 {
@@ -159,7 +159,7 @@ void TxnProcessor::RunLockingScheduler()
                     if (txn->readset_.size() + txn->writeset_.size() > 1)
                     {
                         // Release all locks that already acquired
-                        for (set<Key>::iterator it_reads = txn->readset_.begin(); true; ++it_reads)
+                        for (std::set<Key>::iterator it_reads = txn->readset_.begin(); true; ++it_reads)
                         {
                             lm_->Release(txn, *it_reads);
                             if (it_reads == it)
@@ -175,7 +175,7 @@ void TxnProcessor::RunLockingScheduler()
             if (blocked == false)
             {
                 // Request write locks.
-                for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+                for (std::set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
                 {
                     if (!lm_->WriteLock(txn, *it))
                     {
@@ -184,13 +184,13 @@ void TxnProcessor::RunLockingScheduler()
                         if (txn->readset_.size() + txn->writeset_.size() > 1)
                         {
                             // Release all read locks that already acquired
-                            for (set<Key>::iterator it_reads = txn->readset_.begin(); it_reads != txn->readset_.end();
-                                 ++it_reads)
+                            for (std::set<Key>::iterator it_reads = txn->readset_.begin();
+                                 it_reads != txn->readset_.end(); ++it_reads)
                             {
                                 lm_->Release(txn, *it_reads);
                             }
                             // Release all write locks that already acquired
-                            for (set<Key>::iterator it_writes = txn->writeset_.begin(); true; ++it_writes)
+                            for (std::set<Key>::iterator it_writes = txn->writeset_.begin(); true; ++it_writes)
                             {
                                 lm_->Release(txn, *it_writes);
                                 if (it_writes == it)
@@ -239,12 +239,12 @@ void TxnProcessor::RunLockingScheduler()
             }
 
             // Release read locks.
-            for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (std::set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
             // Release write locks.
-            for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+            for (std::set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
@@ -273,19 +273,19 @@ void TxnProcessor::ExecuteTxn(Txn* txn)
     txn->occ_start_time_ = GetTime();
 
     // Read everything in from readset.
-    for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+    for (auto key : txn->readset_)
     {
         // Save each read result iff record exists in storage.
         Value result;
-        if (storage_->Read(*it, &result)) txn->reads_[*it] = result;
+        if (storage_->Read(key, &result)) txn->reads_[key] = result;
     }
 
     // Also read everything in from writeset.
-    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+    for (auto key : txn->writeset_)
     {
         // Save each read result iff record exists in storage.
         Value result;
-        if (storage_->Read(*it, &result)) txn->reads_[*it] = result;
+        if (storage_->Read(key, &result)) txn->reads_[key] = result;
     }
 
     // Execute txn's program logic.
@@ -298,9 +298,9 @@ void TxnProcessor::ExecuteTxn(Txn* txn)
 void TxnProcessor::ApplyWrites(Txn* txn)
 {
     // Write buffered writes out to storage.
-    for (map<Key, Value>::iterator it = txn->writes_.begin(); it != txn->writes_.end(); ++it)
+    for (auto key : txn->writes_)
     {
-        storage_->Write(it->first, it->second, txn->unique_id_);
+        storage_->Write(key.first, key.second, txn->unique_id_);
     }
 }
 

@@ -119,10 +119,10 @@ class AtomicSet
     }
 
     // Returns a copy of the underlying set.
-    set<V> GetSet()
+    std::set<V> GetSet()
     {
         boost::shared_lock<boost::shared_mutex> lock(mutex_);
-        set<V> my_set(set_);
+        std::set<V> my_set(set_);
         return my_set;
     }
 
@@ -141,8 +141,8 @@ class AtomicQueue
 {
    public:
     AtomicQueue() {}
-    // AtomicQueue(const AtomicQueue&) = delete;
-    // AtomicQueue& operator=(const AtomicQueue&) = delete;
+    AtomicQueue(const AtomicQueue&) = delete;
+    AtomicQueue& operator=(const AtomicQueue&) = delete;
 
     // Returns the number of elements currently in the queue.
     int Size()
@@ -156,7 +156,7 @@ class AtomicQueue
     void Push(const T& item)
     {
         std::unique_lock<std::mutex> mlock(mutex_);
-        queue_.push(std::move(item));
+        queue_.push(item);
     }
 
     void UnSafePush(const T& item) { queue_.push(item); }
@@ -184,7 +184,7 @@ class AtomicQueue
     {
         if (mutex_.try_lock())
         {
-            queue_.push(std::move(item));
+            queue_.push(item);
             mutex_.unlock();
             return true;
         }
