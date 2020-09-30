@@ -75,3 +75,185 @@ In order to avoid the complexities of creating a thread-safe lock manager in thi
 To help you get comfortable using the transaction processing framework, most of this algorithm is already implemented in `TxnProcessor::RunLockingScheduler()`. Locks are requested and released at all the right times, and all necessary data structures for an efficient lock manager are already in place. All you need to do is implement the **WriteLock**, **Release**, and **Status** methods in the class `LockManagerA`. Make sure you look at the file `lock_manager.h` which explains the data structures that you will be using to queue up requests for locks in the lock manager.
 
 The test file `txn/lock_manager_test.cc` provides some rudimentary correctness tests for your lock manager implementations, but additional tests may be added when we grade the assignment. We therefore suggest that you augment the tests with any additional cases you can think of that the existing tests do not cover.
+
+
+## Part 1B: Slightly Less Simple Locking (adding in shared locks)
+
+{% hint style="success" %}
+15 points for Part 1B.
+{% endhint %}
+
+To increase concurrency, we can allow transactions with overlapping readsets but **disjoint** write sets to execute concurrently. We do this by adding in **SHARED** locks. Again, all data structures already exist, and all you need to implement are the **WriteLock**, **ReadLock**, **Release**, and **Status** methods in the class 'LockManagerB'.
+
+Again, `txn/lock_manager_test.cc` provides some basic correctness tests, but you should go beyond these in checking the correctness of your implementation.
+
+## Part 2: Serial Optimistic Concurrency Control (OCC)
+
+{% hint style="success" %}
+10 points for Part 2.
+{% endhint %}
+
+For OCC, you will have to implement the `TxnProcessor::RunOCCScheduler` method. This is a simplified version of OCC compared to the one presented in the paper. Pseudocode for the OCC algorithm to implement (in the `RunOCCScheduler` method):
+
+```c++
+  while (tp_.Active()) {
+    Get the next new transaction request (if one is pending) and pass it to an execution thread.
+    Deal with all transactions that have finished running (see below).
+  }
+
+  In the execution thread (we are providing you this code):
+    Record start time
+    Perform "read phase" of transaction:
+       Read all relevant data from storage
+       Execute the transaction logic (i.e. call Run() on the transaction)
+
+  Dealing with a finished transaction (you must write this code):
+    // Validation phase:
+    for (each record whose key appears in the txn's read and write sets) {
+      if (the record was last updated AFTER this transaction's start time) {
+        Validation fails!
+      }
+    }
+
+    // Commit/restart
+    if (validation failed) {
+      Cleanup txn
+      Completely restart the transaction.
+    } else {
+      Apply all writes
+      Mark transaction as committed
+    }
+
+  cleanup txn:
+    txn->reads_.clear();
+    txn->writes_.clear();
+    txn->status_ = INCOMPLETE;
+
+  Restart txn:
+    mutex_.Lock();
+    txn->unique_id_ = next_unique_id_;
+    next_unique_id_++;
+    txn_requests_.Push(txn);
+    mutex_.Unlock();
+```
+
+
+## Part 3: Optimistic Concurrency Control with Parallel Validation.
+
+{% hint style="success" %}
+12 points for Part 3.
+{% endhint %}
+
+OCC with parallel validation means that the validation/write steps for OCC are done in parallel across transactions. There are several different ways to do the parallel validation -- here we give a simplified version of the pseudocode from the paper, or you can write your own pseudocode based on the paper's presentation of parallel validation and argue why it's better than the ones presented here (see analysis question 4).
+
+{% hint style="info" %}
+The `util/atomic.h` file contains data structures that may be useful for this section.
+{% endhint %}
+
+Pseudocode to implement in RunOCCParallelScheduler:
+
+```c++
+  while (tp_.Active()) {
+    Get the next new transaction request (if one is pending) and pass it to an execution thread that executes the txn logic *and also* does the validation and write phases.
+  }
+
+  In the execution thread:
+    Record start time
+    Perform "read phase" of transaction:
+       Read all relevant data from storage
+       Execute the transaction logic (i.e. call Run() on the transaction)
+    <Start of critical section>
+    Make a copy of the active set save it
+    Add this transaction to the active set
+    <End of critical section>
+    Do validation phase:
+      for (each record whose key appears in the txn's read and write sets) {
+        if (the record was last updated AFTER this transaction's start time) {
+          Validation fails!
+        }
+      }
+
+      for (each txn t in the txn's copy of the active set) {
+        if (txn's write set intersects with t's write sets) {
+          Validation fails!
+        }
+        if (txn's read set intersects with t's write sets) {
+          Validation fails!
+        }
+      }
+
+      if valid :
+        Apply writes;
+        Remove this transaction from the active set
+        Mark transaction as committed;
+      else if validation failed:
+        Remove this transaction from the active set
+        Cleanup txn
+        Completely restart the transaction.
+
+    cleanup txn:
+       txn->reads_.clear();
+       txn->writes_.clear();
+       txn->status_ = INCOMPLETE;
+
+    Restart txn:
+      mutex_.Lock();
+      txn->unique_id_ = next_unique_id_;
+      next_unique_id_++;
+      txn_requests_.Push(txn);
+      mutex_.Unlock();
+```
+
+## Multiversion Timestamp Ordering Concurrency Control
+
+{% hint style="success" %}
+20 points for Part 4.
+{% endhint %}
+
+For MVCC, you will have to implement the `TxnProcessor::RunMVCCScheduler` method based on the pseudocode below. The pseudocode implements a simplified version of MVCC relative to the material we presented in class.
+
+Although we give you a version of pseudocode, if you want, you can write your own pseudocode and argue why it's better than the code presented here (see analysis question 6).
+
+In addition you will have to implement the **MVCCStorage::Read**, **MVCCStorage::Write**, **MVCCStorage::CheckWrite**.
+
+Pseudocode for the algorithm to implement (in the `RunMVCCScheduler` method):
+
+```c++
+  while (tp_.Active()) {
+    Get the next new transaction request (if one is pending) and pass it to an execution thread.
+  }
+
+  In the execution thread:
+
+    Read all necessary data for this transaction from storage (Note that unlike the version of MVCC from class, you should lock the key before each read)
+    Execute the transaction logic (i.e. call Run() on the transaction)
+    Acquire all locks for keys in the write_set_
+    Call MVCCStorage::CheckWrite method to check all keys in the write_set_
+    If (each key passed the check)
+      Apply the writes
+      Release all locks for keys in the write_set_
+    else if (at least one key failed the check)
+      Release all locks for keys in the write_set_
+      Cleanup txn
+      Completely restart the transaction.
+
+  cleanup txn:
+    txn->reads_.clear();
+    txn->writes_.clear();
+    txn->status_ = INCOMPLETE;
+
+  Restart txn:
+    mutex_.Lock();
+    txn->unique_id_ = next_unique_id_;
+    next_unique_id_++;
+    txn_requests_.Push(txn);
+    mutex_.Unlock();
+```
+
+## Part 5: Analysis
+
+{% hint style="success" %}
+3-8 points for each response, total 33 points.
+{% endhint %}
+
+
