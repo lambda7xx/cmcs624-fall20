@@ -313,3 +313,27 @@ If you wrote your own version, please explain why it's better than the ones pres
 - [ ] Why did our MVCC pseudocode request read locks before each read?
 - [ ] In particular, what would happen if you didn't acquire these read locks?
 - [ ] How long do these locks have to be held?
+
+
+
+## A few important notes on the implementation
+
+1. You should only put the committed transaction into the `txn_results_` queue. Don't put the aborted transaction into the `txn_results_` queue. Instead, put it into `txn_requests_` queue.
+
+```c++
+    mutex_.Lock();
+    txn->unique_id_ = next_unique_id_;
+    next_unique_id_++;
+    txn_requests_.Push(txn);
+    mutex_.Unlock();
+```
+
+2. Inside your `Execution` method of MVCC:  when you call `read()` method to read values from database, please don't forget to provide the third parameter(txn->unique_id_), otherwise the default value is 0 and you always read the oldest version.
+
+3. For MVCC, the performance would be much better if you organize the versions in **decreasing order**. You can implement this by inserting the new version into the right place inside the `write()` method.
+
+
+## Submission
+
+Please submit all text files (`analysis.txt`) discussed above to the Assignment 2 link on ELMS. You do not need to submit any code, since we have access to your repositories.
+
