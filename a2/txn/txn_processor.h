@@ -140,7 +140,7 @@ class TxnProcessor
     bool stopped_;
 
     // Gives us access to the scheduler thread so that we can wait for it to join later.
-    pthread_t scheduler_thread_;
+    std::thread scheduler_thread_;
 };
 
 #endif  // _TXN_PROCESSOR_H_

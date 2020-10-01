@@ -1,12 +1,13 @@
 
 #include "txn/txn_processor.h"
 #include <stdio.h>
+#include <functional>
 #include <set>
 
 #include "txn/lock_manager.h"
 
 // Thread & queue counts for StaticThreadPool initialization.
-#define THREAD_COUNT 16
+#define THREAD_COUNT 8
 
 TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_unique_id_(1)
 {
@@ -28,20 +29,8 @@ TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_u
     storage_->InitStorage();
 
     // Start 'RunScheduler()' running.
-    cpu_set_t cpuset;
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    CPU_ZERO(&cpuset);
-    for (int i = 0; i < 15; i++)
-    {
-        CPU_SET(i, &cpuset);
-    }
-    pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
-    pthread_t scheduler_;
-    pthread_create(&scheduler_, &attr, StartScheduler, reinterpret_cast<void*>(this));
-
     stopped_          = false;
-    scheduler_thread_ = scheduler_;
+    scheduler_thread_ = std::thread(StartScheduler, reinterpret_cast<void*>(this));
 }
 
 void* TxnProcessor::StartScheduler(void* arg)
@@ -54,7 +43,7 @@ TxnProcessor::~TxnProcessor()
 {
     // Wait for the scheduler thread to join back before destroying the object and its thread pool.
     stopped_ = true;
-    pthread_join(scheduler_thread_, NULL);
+    scheduler_thread_.join();
 
     if (mode_ == LOCKING_EXCLUSIVE_ONLY || mode_ == LOCKING) delete lm_;
 
@@ -258,7 +247,7 @@ void TxnProcessor::RunLockingScheduler()
             ready_txns_.pop_front();
 
             // Start txn running in its own thread.
-            tp_.enqueue([&]() { this->ExecuteTxn(txn); });
+            tp_.AddTask([this, txn]() { this->ExecuteTxn(txn); });
         }
     }
 }

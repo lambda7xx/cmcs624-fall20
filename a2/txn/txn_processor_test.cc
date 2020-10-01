@@ -151,16 +151,6 @@ int main(int argc, char** argv)
     cout << "\t\t0.1ms\t\t1ms\t\t10ms";
     cout << endl;
 
-    cpu_set_t cs;
-    CPU_ZERO(&cs);
-    CPU_SET(7, &cs);
-    int ret = sched_setaffinity(0, sizeof(cs), &cs);
-    if (ret)
-    {
-        perror("sched_setaffinity");
-        assert(false);
-    }
-
     vector<LoadGen*> lg;
 
     cout << "'Low contention' Read only (5 records)" << endl;
