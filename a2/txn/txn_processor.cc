@@ -39,6 +39,9 @@ TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_u
     pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     pthread_t scheduler_;
     pthread_create(&scheduler_, &attr, StartScheduler, reinterpret_cast<void*>(this));
+
+    stopped_          = false;
+    scheduler_thread_ = scheduler_;
 }
 
 void* TxnProcessor::StartScheduler(void* arg)
@@ -49,6 +52,10 @@ void* TxnProcessor::StartScheduler(void* arg)
 
 TxnProcessor::~TxnProcessor()
 {
+    // Wait for the scheduler thread to join back before destroying the object and its thread pool.
+    stopped_ = true;
+    pthread_join(scheduler_thread_, NULL);
+
     if (mode_ == LOCKING_EXCLUSIVE_ONLY || mode_ == LOCKING) delete lm_;
 
     delete storage_;
@@ -104,7 +111,7 @@ void TxnProcessor::RunScheduler()
 void TxnProcessor::RunSerialScheduler()
 {
     Txn* txn;
-    while (tp_.Active())
+    while (!stopped_)
     {
         // Get next txn request.
         if (txn_requests_.Pop(&txn))
@@ -137,14 +144,14 @@ void TxnProcessor::RunSerialScheduler()
 void TxnProcessor::RunLockingScheduler()
 {
     Txn* txn;
-    while (tp_.Active())
+    while (!stopped_)
     {
         // Start processing the next incoming transaction request.
         if (txn_requests_.Pop(&txn))
         {
             bool blocked = false;
             // Request read locks.
-            for (auto it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 if (!lm_->ReadLock(txn, *it))
                 {
@@ -155,7 +162,7 @@ void TxnProcessor::RunLockingScheduler()
             if (blocked == false)
             {
                 // Request write locks.
-                for (auto it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+                for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
                 {
                     if (!lm_->WriteLock(txn, *it))
                     {
@@ -192,12 +199,12 @@ void TxnProcessor::RunLockingScheduler()
             }
 
             // Release read locks.
-            for (auto it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
+            for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
             // Release write locks.
-            for (auto it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+            for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
             {
                 lm_->Release(txn, *it);
             }
@@ -226,19 +233,19 @@ void TxnProcessor::ExecuteTxn(Txn* txn)
     txn->occ_start_time_ = GetTime();
 
     // Read everything in from readset.
-    for (auto key : txn->readset_)
+    for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it)
     {
         // Save each read result iff record exists in storage.
         Value result;
-        if (storage_->Read(key, &result)) txn->reads_[key] = result;
+        if (storage_->Read(*it, &result)) txn->reads_[*it] = result;
     }
 
     // Also read everything in from writeset.
-    for (auto key : txn->writeset_)
+    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
     {
         // Save each read result iff record exists in storage.
         Value result;
-        if (storage_->Read(key, &result)) txn->reads_[key] = result;
+        if (storage_->Read(*it, &result)) txn->reads_[*it] = result;
     }
 
     // Execute txn's program logic.
@@ -251,9 +258,9 @@ void TxnProcessor::ExecuteTxn(Txn* txn)
 void TxnProcessor::ApplyWrites(Txn* txn)
 {
     // Write buffered writes out to storage.
-    for (auto key : txn->writes_)
+    for (map<Key, Value>::iterator it = txn->writes_.begin(); it != txn->writes_.end(); ++it)
     {
-        storage_->Write(key.first, key.second, txn->unique_id_);
+        storage_->Write(it->first, it->second, txn->unique_id_);
     }
 }
 
