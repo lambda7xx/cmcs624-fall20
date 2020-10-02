@@ -268,10 +268,8 @@ After implementing both locking schemes, both OCC schemes, and the MVCC scheme, 
 
 ### 1. Carpe datum (2 points)
 
-Run `make test` and report the performance numbers given by `txn_processor_test`. 
-
 {% hint style="info" %}
-When you finish the code part, we will run your code on our test server, and commit the results back to you.
+When you finish the coding part of this assignment, we will run your code on our test server, and commit the results back to you. Copy and paste these results to the top of your `analysis.txt` file.
 {% endhint %}
 
 ### 2. Simulations are doomed to succeed. (4 points)
@@ -343,5 +341,5 @@ If you wrote your own version, please explain why it's better than the ones pres
 
 ## Submission
 
-Please submit all text files (`analysis.txt`) discussed above to the Assignment 2 link on ELMS. You do not need to submit any code, since we have access to your repositories.
+Please submit the `analysis.txt` file containing your answers to the questions above to the Assignment 2 link on ELMS. You do not need to submit any code, since we have access to your repositories.
 
