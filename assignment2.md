@@ -8,7 +8,7 @@ Before beginning this assignment, please be sure you have a clear understanding 
 
 In this assignment you will be implementing **five** concurrency control schemes:
 
-* Two versions of locking schemes, both of which are considerably simpler than standard two-phase locking.
+* Two versions of locking schemes, both of which implement variations of the standard two-phase locking algorithm we discussed in class.
 * A version of OCC very similar to the serial-validation version described in the OCC paper you read for class.
 * A version of OCC somewhat similar to the parallel-validation version described in the OCC paper.
 * A version of MVCC timestamp ordering that is a simplified version of the PostgreSQL scheme we studied in class.
