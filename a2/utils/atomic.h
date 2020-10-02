@@ -7,6 +7,7 @@
 #include <queue>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <assert.h>
 
@@ -119,15 +120,15 @@ class AtomicSet
     }
 
     // Returns a copy of the underlying set.
-    std::set<V> GetSet()
+    std::unordered_set<V> GetSet()
     {
         boost::shared_lock<boost::shared_mutex> lock(mutex_);
-        std::set<V> my_set(set_);
-        return my_set;
+        // https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
+        return set_;
     }
 
    private:
-    std::set<V> set_;
+    std::unordered_set<V> set_;
     boost::shared_mutex mutex_;
 };
 

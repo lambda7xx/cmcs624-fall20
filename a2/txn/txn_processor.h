@@ -128,7 +128,7 @@ class TxnProcessor
 
     // Set of transactions that are currently in the process of parallel
     // validation.
-    AtomicSet<Txn*> active_set_;
+    std::unordered_set<Txn*> active_set_;
 
     // Used it for critical section in parallel occ.
     std::mutex active_set_mutex_;
