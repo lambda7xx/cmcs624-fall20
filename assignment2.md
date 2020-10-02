@@ -15,11 +15,11 @@ In this assignment you will be implementing **five** concurrency control schemes
 
 ## Pull the Code
 
-Pulling the latest assignment from the offical repository.
+You have to change the current working directory to your existed folder from assignment 1, then pulling updates from the official repository.
 
 ```shell
 git remote add a2 https://github.com/umd-db/cmcs624-fall20
-git pull a2 master # you may need to fix the merge conflict here
+git pull a2 master # you may have to fix the merge conflicts
 ```
 
 {% hint style="info" %}
