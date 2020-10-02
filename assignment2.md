@@ -73,9 +73,7 @@ Once you've looked through the code and are somewhat familiar with the overall s
 
 ```shell
 1. Upon entering the system, each transaction requests an EXCLUSIVE lock on EVERY item that it will either read or write.
-2. If any lock request is denied:
-   2a) then have the transaction simply wait until the request is granted and then proceed to step (3).
-   2b) Otherwise, immediately release all locks that were granted before this denial, and immediately abort and queue the transaction for restart at a later point.
+2. If any lock request is denied, then have the transaction simply wait until the request is granted and then proceed to step (3).
 3. Execute the program logic.
 4. Release ALL locks at commit/abort time.
 ```
