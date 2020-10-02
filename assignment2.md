@@ -71,12 +71,14 @@ However, to understand what's going on in the framework, you will need to look t
 
 Once you've looked through the code and are somewhat familiar with the overall structure and flow, you'll implement a simplified version of two-phase locking. The protocol goes like this:
 
-1. Upon entering the system, each transaction requests an **EXCLUSIVE** lock on **EVERY** item that it will either read or write.
+```shell
+1. Upon entering the system, each transaction requests an EXCLUSIVE lock on EVERY item that it will either read or write.
 2. If any lock request is denied:
-   2a) If the entire transaction involves just a single read or write request, then have the transaction simply wait until the request is granted and then proceed to step (3).
+   2a) then have the transaction simply wait until the request is granted and then proceed to step (3).
    2b) Otherwise, immediately release all locks that were granted before this denial, and immediately abort and queue the transaction for restart at a later point.
-3. Execute the program logic. Note: We only get to this point if we didn't get to step (2b) which aborts the transaction.
-4. Release **ALL** locks at **commit/abort time**.
+3. Execute the program logic.
+4. Release ALL locks at commit/abort time.
+```
 
 In order to avoid the complexities of creating a thread-safe lock manager in this assignment, our implementation only has a single thread that manages the state of the lock manager. This thread performs all the lock requests on behalf of the transactions and then hands over control to a separate execution thread in step (3) above. Note that for workloads where transactions make heavy use of the lock manager, this single lock manager thread may become a performance bottleneck as it has to request and release locks on behalf of ALL transactions.
 
