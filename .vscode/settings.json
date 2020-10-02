@@ -53,6 +53,7 @@
         "future": "cpp",
         "string": "cpp",
         "condition_variable": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "unordered_set": "cpp"
     }
 }

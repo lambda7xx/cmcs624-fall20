@@ -1,7 +1,6 @@
 
 #include "txn/txn_processor.h"
 #include <stdio.h>
-#include <functional>
 #include <set>
 
 #include "txn/lock_manager.h"
@@ -29,8 +28,17 @@ TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_u
     storage_->InitStorage();
 
     // Start 'RunScheduler()' running.
-    stopped_          = false;
-    scheduler_thread_ = std::thread(StartScheduler, reinterpret_cast<void*>(this));
+    cpu_set_t cpuset;
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    CPU_ZERO(&cpuset);
+    for (int i = 0; i < 7; i++)
+    {
+        CPU_SET(i, &cpuset);
+    }
+    pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+    pthread_t scheduler_;
+    pthread_create(&scheduler_, &attr, StartScheduler, reinterpret_cast<void*>(this));
 }
 
 void* TxnProcessor::StartScheduler(void* arg)
@@ -41,10 +49,6 @@ void* TxnProcessor::StartScheduler(void* arg)
 
 TxnProcessor::~TxnProcessor()
 {
-    // Wait for the scheduler thread to join back before destroying the object and its thread pool.
-    stopped_ = true;
-    scheduler_thread_.join();
-
     if (mode_ == LOCKING_EXCLUSIVE_ONLY || mode_ == LOCKING) delete lm_;
 
     delete storage_;
@@ -54,10 +58,11 @@ void TxnProcessor::NewTxnRequest(Txn* txn)
 {
     // Atomically assign the txn a new number and add it to the incoming txn
     // requests queue.
-    const std::lock_guard<std::mutex> lock(mutex_);
+    mutex_.Lock();
     txn->unique_id_ = next_unique_id_;
     next_unique_id_++;
-    txn_requests_.UnSafePush(txn);
+    txn_requests_.Push(txn);
+    mutex_.Unlock();
 }
 
 Txn* TxnProcessor::GetTxnResult()
@@ -99,7 +104,7 @@ void TxnProcessor::RunScheduler()
 void TxnProcessor::RunSerialScheduler()
 {
     Txn* txn;
-    while (!stopped_)
+    while (tp_.Active())
     {
         // Get next txn request.
         if (txn_requests_.Pop(&txn))
@@ -132,7 +137,7 @@ void TxnProcessor::RunSerialScheduler()
 void TxnProcessor::RunLockingScheduler()
 {
     Txn* txn;
-    while (!stopped_)
+    while (tp_.Active())
     {
         // Start processing the next incoming transaction request.
         if (txn_requests_.Pop(&txn))
@@ -144,6 +149,20 @@ void TxnProcessor::RunLockingScheduler()
                 if (!lm_->ReadLock(txn, *it))
                 {
                     blocked = true;
+                    // If readset_.size() + writeset_.size() > 1, and blocked, just abort
+                    if (txn->readset_.size() + txn->writeset_.size() > 1)
+                    {
+                        // Release all locks that already acquired
+                        for (set<Key>::iterator it_reads = txn->readset_.begin(); true; ++it_reads)
+                        {
+                            lm_->Release(txn, *it_reads);
+                            if (it_reads == it)
+                            {
+                                break;
+                            }
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -155,6 +174,26 @@ void TxnProcessor::RunLockingScheduler()
                     if (!lm_->WriteLock(txn, *it))
                     {
                         blocked = true;
+                        // If readset_.size() + writeset_.size() > 1, and blocked, just abort
+                        if (txn->readset_.size() + txn->writeset_.size() > 1)
+                        {
+                            // Release all read locks that already acquired
+                            for (set<Key>::iterator it_reads = txn->readset_.begin(); it_reads != txn->readset_.end();
+                                 ++it_reads)
+                            {
+                                lm_->Release(txn, *it_reads);
+                            }
+                            // Release all write locks that already acquired
+                            for (set<Key>::iterator it_writes = txn->writeset_.begin(); true; ++it_writes)
+                            {
+                                lm_->Release(txn, *it_writes);
+                                if (it_writes == it)
+                                {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
             }
@@ -164,6 +203,14 @@ void TxnProcessor::RunLockingScheduler()
             if (blocked == false)
             {
                 ready_txns_.push_back(txn);
+            }
+            else if (blocked == true && (txn->writeset_.size() + txn->readset_.size() > 1))
+            {
+                mutex_.Lock();
+                txn->unique_id_ = next_unique_id_;
+                next_unique_id_++;
+                txn_requests_.Push(txn);
+                mutex_.Unlock();
             }
         }
 

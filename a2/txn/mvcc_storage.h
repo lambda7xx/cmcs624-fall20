@@ -4,10 +4,6 @@
 
 #include "txn/storage.h"
 
-#include <deque>
-#include <memory>
-#include <mutex>
-
 // MVCC 'version' structure
 struct Version
 {
@@ -49,17 +45,11 @@ class MVCCStorage : public Storage
    private:
     friend class TxnProcessor;
 
-    template <typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
-    {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
-
     // Storage for MVCC, each key has a linklist of versions
-    std::unordered_map<Key, std::deque<Version*>*> mvcc_data_;
+    unordered_map<Key, deque<Version*>*> mvcc_data_;
 
     // Mutexs for each key
-    std::unordered_map<Key, std::unique_ptr<std::mutex>> mutexs_;
+    unordered_map<Key, Mutex*> mutexs_;
 };
 
 #endif  // _MVCC_STORAGE_H_

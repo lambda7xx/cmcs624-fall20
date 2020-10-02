@@ -2,10 +2,8 @@
 #ifndef _TXN_PROCESSOR_H_
 #define _TXN_PROCESSOR_H_
 
-#include <atomic>
 #include <deque>
 #include <map>
-#include <mutex>
 #include <string>
 
 #include "txn/common.h"
@@ -14,7 +12,12 @@
 #include "txn/storage.h"
 #include "txn/txn.h"
 #include "utils/atomic.h"
-#include "utils/thread_pool.h"
+#include "utils/mutex.h"
+#include "utils/static_thread_pool.h"
+
+using std::deque;
+using std::map;
+using std::string;
 
 // The TxnProcessor supports five different execution modes, corresponding to
 // the four parts of assignment 2, plus a simple serial (non-concurrent) mode.
@@ -101,14 +104,14 @@ class TxnProcessor
     CCMode mode_;
 
     // Thread pool managing all threads used by TxnProcessor.
-    ThreadPool tp_;
+    StaticThreadPool tp_;
 
     // Data storage used for all modes.
     Storage* storage_;
 
     // Next valid unique_id, and a mutex to guard incoming txn requests.
     int next_unique_id_;
-    std::mutex mutex_;
+    Mutex mutex_;
 
     // Queue of incoming transaction requests.
     AtomicQueue<Txn*> txn_requests_;
@@ -117,7 +120,7 @@ class TxnProcessor
     //
     // Does not need to be atomic because RunScheduler is the only thread that
     // will ever access this queue.
-    std::deque<Txn*> ready_txns_;
+    deque<Txn*> ready_txns_;
 
     // Queue of completed (but not yet committed/aborted) transactions.
     AtomicQueue<Txn*> completed_txns_;
@@ -128,19 +131,13 @@ class TxnProcessor
 
     // Set of transactions that are currently in the process of parallel
     // validation.
-    std::unordered_set<Txn*> active_set_;
+    AtomicSet<Txn*> active_set_;
 
     // Used it for critical section in parallel occ.
-    std::mutex active_set_mutex_;
+    Mutex active_set_mutex_;
 
     // Lock Manager used for LOCKING concurrency implementations.
     LockManager* lm_;
-
-    // Used for stopping the continuous loop that runs in the scheduler thread
-    bool stopped_;
-
-    // Gives us access to the scheduler thread so that we can wait for it to join later.
-    std::thread scheduler_thread_;
 };
 
 #endif  // _TXN_PROCESSOR_H_

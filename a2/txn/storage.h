@@ -3,10 +3,17 @@
 #define _STORAGE_H_
 
 #include <limits.h>
-#include <unordered_map>
+#include <deque>
+#include <map>
+#include <tr1/unordered_map>
 
 #include "txn/common.h"
 #include "txn/txn.h"
+#include "utils/mutex.h"
+
+using std::tr1::unordered_map;
+using std::deque;
+using std::map;
 
 class Storage
 {
@@ -37,10 +44,10 @@ class Storage
     friend class TxnProcessor;
 
     // Collection of <key, value> pairs. Use this for single-version storage
-    std::unordered_map<Key, Value> data_;
+    unordered_map<Key, Value> data_;
 
     // Timestamps at which each key was last updated.
-    std::unordered_map<Key, double> timestamps_;
+    unordered_map<Key, double> timestamps_;
 };
 
 #endif  // _STORAGE_H_

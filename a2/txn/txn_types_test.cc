@@ -28,20 +28,24 @@ TEST(PutTest)
     TxnProcessor p(SERIAL);
     Txn* t;
 
-    p.NewTxnRequest(new Put("1", "2"));
+    std::map<Key, Value> m1 = {{1, 2}};
+    p.NewTxnRequest(new Put(m1));
     delete p.GetTxnResult();
 
-    p.NewTxnRequest(new Expect("0", "2"));  // Should abort (no key '0' exists)
+    std::map<Key, Value> m2 = {{0, 2}};
+    p.NewTxnRequest(new Expect(m2));  // Should abort (no key '0' exists)
     t = p.GetTxnResult();
     EXPECT_EQ(ABORTED, t->Status());
     delete t;
 
-    p.NewTxnRequest(new Expect("1", "1"));  // Should abort (wrong value for key)
+    std::map<Key, Value> m3 = {{1, 1}};
+    p.NewTxnRequest(new Expect(m3));  // Should abort (wrong value for key)
     t = p.GetTxnResult();
     EXPECT_EQ(ABORTED, t->Status());
     delete t;
 
-    p.NewTxnRequest(new Expect("1", "2"));  // Should commit
+    std::map<Key, Value> m4 = {{1, 2}};
+    p.NewTxnRequest(new Expect(m4));  // Should commit
     t = p.GetTxnResult();
     EXPECT_EQ(COMMITTED, t->Status());
     delete t;
@@ -55,12 +59,12 @@ TEST(PutMultipleTest)
     Txn* t;
 
     map<Key, Value> m;
-    for (int i = 0; i < 1000; i++) m[IntToString(i)] = IntToString(i * i);
+    for (int i = 0; i < 1000; i++) m[i] = i * i;
 
-    p.NewTxnRequest(new PutMultiple(m));
+    p.NewTxnRequest(new Put(m));
     delete p.GetTxnResult();
 
-    p.NewTxnRequest(new ExpectMultiple(m));
+    p.NewTxnRequest(new Expect(m));
     t = p.GetTxnResult();
     EXPECT_EQ(COMMITTED, t->Status());
     delete t;

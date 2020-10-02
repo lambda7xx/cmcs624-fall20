@@ -8,6 +8,10 @@
 
 #include "txn/common.h"
 
+using std::map;
+using std::set;
+using std::vector;
+
 // Txns can have five distinct status values:
 enum TxnStatus
 {
@@ -82,16 +86,16 @@ class Txn
 
     // Set of all keys that may need to be read in order to execute the
     // transaction.
-    std::set<Key> readset_;
+    set<Key> readset_;
 
     // Set of all keys that may be updated when executing the transaction.
-    std::set<Key> writeset_;
+    set<Key> writeset_;
 
     // Results of reads performed by the transaction.
-    std::map<Key, Value> reads_;
+    map<Key, Value> reads_;
 
     // Key, Value pairs WRITTEN by the transaction.
-    std::map<Key, Value> writes_;
+    map<Key, Value> writes_;
 
     // Transaction's current execution status.
     TxnStatus status_;
