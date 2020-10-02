@@ -13,6 +13,14 @@ In this assignment you will be implementing **five** concurrency control schemes
 * A version of OCC somewhat similar to the parallel-validation version described in the OCC paper.
 * A version of MVCC timestamp ordering that is a simplified version of the PostgreSQL scheme we studied in class.
 
+## Pull the Code
+
+Pulling the latest assignment from the offical repository.
+
+```shell
+git remote add a2 https://github.com/umd-db/cmcs624-fall20
+git pull a2 master # you may need to fix the merge conflict here
+```
 
 {% hint style="info" %}
 Similar to assignment 1, aside from writing code, this assignment involves **running some performance experiments** and **answering some questions** we ask below. We use the same private git repository (a1) for each student, and each student can commit changes and push them to this private repository. Our grading server will run your code regularly, generate the output files, and automatically commit them back to you. This will enable the code from each student to run on an identical server (with the same performance characteristics), so that students do not have to be concerned that any strange performance numbers they may see is the result of their particular choice of hardware. 
