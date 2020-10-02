@@ -304,11 +304,11 @@ If you did not follow the given pseudocode for OCC with parallel validation, giv
 
 ### 5. OCC vs. Locking B  (7 points)
 
-If your code is correct, you probably found that OCC and Locking B were approximately the same performance for the **high contention** read-only (5-records) test. But OCC beat Locking B for the **high contention** read-only (30-records) test. 
+If your code is correct, you probably found that OCC and Locking B were approximately the same performance for the **high contention** read-only (5-records) test. 
 
-- [ ] What is the reason for OCC suddenly being better for 30-record transactions? 
-- [ ] Furthermore, OCC loses to Locking B for the **high contention** read-write test (both for 5 record transactions and 10 record transactions). Why? 
-- [ ] Furthermore, why does the relative difference between OCC and Locking B get larger for transactions longer than 0.1 ms in the **high contention** read-write test?
+- [ ] But OCC beat Locking B for the **high contention** read-only (30-records) test. What is the reason for OCC suddenly being better for 30-record transactions? 
+- [ ] Furthermore, OCC beat Locking B for the **high contention** read-write test (both for 5 record transactions and 10 record transactions). Why? 
+- [ ] Furthermore, why does the relative difference between OCC and Locking B get larger for 10 record transactions than 5 record transactions in the **high contention** read-write test?
 
 ### 6. MVCC vs. OCC/Locking (7 points)
 
