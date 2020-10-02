@@ -73,10 +73,12 @@ Once you've looked through the code and are somewhat familiar with the overall s
 
 ```shell
 1. Upon entering the system, each transaction requests an EXCLUSIVE lock on EVERY item that it will either read or write.
-2. If any lock request is denied, then have the transaction simply wait until the request is granted and then proceed to step (3).
+2. If any lock request is granted, then the request proceed to step (3). Otherwise, the transaction will wait in the queue, and the lock manager instead proceed to the next lock request. 
 3. Execute the program logic.
 4. Release ALL locks at commit/abort time.
 ```
+
+it instead proceed to the next lock request
 
 In order to avoid the complexities of creating a thread-safe lock manager in this assignment, our implementation only has a single thread that manages the state of the lock manager. This thread performs all the lock requests on behalf of the transactions and then hands over control to a separate execution thread in step (3) above. Note that for workloads where transactions make heavy use of the lock manager, this single lock manager thread may become a performance bottleneck as it has to request and release locks on behalf of ALL transactions.
 
