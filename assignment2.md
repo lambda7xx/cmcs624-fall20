@@ -73,7 +73,7 @@ Once you've looked through the code and are somewhat familiar with the overall s
 
 ```shell
 1. Upon entering the system, each transaction requests an EXCLUSIVE lock on EVERY item that it will either read or write.
-2. If any lock request is granted, then the request proceed to step (3). Otherwise, the transaction will wait in the queue, and the lock manager instead proceed to the next lock request. 
+2. Wait until all requests have been granted. 
 3. Execute the program logic.
 4. Release ALL locks at commit/abort time.
 ```
