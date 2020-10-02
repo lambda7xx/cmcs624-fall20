@@ -243,11 +243,11 @@ Pseudocode for the algorithm to implement (in the `RunMVCCScheduler` method):
     txn->status_ = INCOMPLETE;
 
   Restart txn:
-    mutex_.Lock();
-    txn->unique_id_ = next_unique_id_;
-    next_unique_id_++;
-    txn_requests_.Push(txn);
-    mutex_.Unlock();
+    NewTxnRequest(txn);
+    // const std::lock_guard<std::mutex> lock(mutex_);
+    // txn->unique_id_ = next_unique_id_;
+    // next_unique_id_++;
+    // txn_requests_.UnSafePush(txn);
 ```
 
 ## Part 5: Analysis
