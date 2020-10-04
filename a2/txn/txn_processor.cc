@@ -172,7 +172,7 @@ void TxnProcessor::RunLockingScheduler()
             }
 
             // If all read and write locks were immediately acquired, this txn is
-            // ready to be executed. Else, just restart the txn
+            // ready to be executed.
             if (blocked == false)
             {
                 ready_txns_.push_back(txn);
