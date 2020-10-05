@@ -4,19 +4,19 @@
 
 #include <queue>
 #include <set>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include <assert.h>
 #include "utils/mutex.h"
 
 using std::queue;
 using std::set;
-using std::tr1::unordered_map;
+using std::unordered_map;
 
 /// @class AtomicMap<K, V>
 ///
 /// Atomically readable, atomically mutable unordered associative container.
-/// Implemented as a std::tr1::unordered_map guarded by a pthread rwlock.
+/// Implemented as a std::unordered_map guarded by a pthread rwlock.
 /// Supports CRUD operations only. Iterators are NOT supported.
 template <typename K, typename V>
 class AtomicMap

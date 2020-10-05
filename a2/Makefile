@@ -35,7 +35,12 @@ PG =
 CXXFLAGS := -g -MD $(PG) -I$(SRCDIR) -I$(OBJDIR) -std=c++11
 CXXFLAGS += -Wall -Werror
 
-LDFLAGS := -lpthread -lrt $(PG)
+LDFLAGS := -lpthread $(PG)
+
+detected_OS := $(shell uname)
+ifneq ($(detected_OS),Darwin)
+    LDFLAGS += -lrt
+endif
 
 # Lists that the */Makefile.inc makefile fragments will add to
 OBJDIRS :=

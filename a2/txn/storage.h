@@ -5,13 +5,13 @@
 #include <limits.h>
 #include <deque>
 #include <map>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include "txn/common.h"
 #include "txn/txn.h"
 #include "utils/mutex.h"
 
-using std::tr1::unordered_map;
+using std::unordered_map;
 using std::deque;
 using std::map;
 

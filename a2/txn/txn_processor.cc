@@ -28,15 +28,20 @@ TxnProcessor::TxnProcessor(CCMode mode) : mode_(mode), tp_(THREAD_COUNT), next_u
     storage_->InitStorage();
 
     // Start 'RunScheduler()' running.
-    cpu_set_t cpuset;
+
     pthread_attr_t attr;
     pthread_attr_init(&attr);
+
+    #if !defined(_MSC_VER) && !defined(__APPLE__)
+    cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
     for (int i = 0; i < 7; i++)
     {
         CPU_SET(i, &cpuset);
     }
     pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+    #endif
+
     pthread_t scheduler_;
     pthread_create(&scheduler_, &attr, StartScheduler, reinterpret_cast<void*>(this));
 
@@ -79,7 +84,7 @@ Txn* TxnProcessor::GetTxnResult()
     {
         // No result yet. Wait a bit before trying again (to reduce contention on
         // atomic queues).
-        sleep(0.000001);
+        usleep(1);
     }
     return txn;
 }

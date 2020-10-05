@@ -52,10 +52,12 @@ class StaticThreadPool : public ThreadPool
         threads_.resize(thread_count_);
         queues_.resize(thread_count_);
 
-        // Pin all threads in the thread pool to CPU Core 0 ~ 6
-        cpu_set_t cpuset;
         pthread_attr_t attr;
         pthread_attr_init(&attr);
+
+        #if !defined(_MSC_VER) && !defined(__APPLE__)
+        // Pin all threads in the thread pool to CPU Core 0 ~ 6
+        cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         for (int i = 0; i < 7; i++)
         {
@@ -63,6 +65,7 @@ class StaticThreadPool : public ThreadPool
         }
 
         pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+        #endif
 
         for (int i = 0; i < thread_count_; i++)
         {
@@ -167,10 +170,12 @@ class StaticThreadPool : public ThreadPool
         threads_.resize(thread_count_);
         queues_.resize(thread_count_);
 
-        // Pin all threads in the thread pool to CPU Core 0 ~ 6
-        cpu_set_t cpuset;
         pthread_attr_t attr;
         pthread_attr_init(&attr);
+
+        #if !defined(_MSC_VER) && !defined(__APPLE__)
+        // Pin all threads in the thread pool to CPU Core 0 ~ 6
+        cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         for (int i = 0; i < 19; i++)
         {
@@ -178,6 +183,7 @@ class StaticThreadPool : public ThreadPool
         }
 
         pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+        #endif
 
         for (int i = 0; i < thread_count_; i++)
         {
