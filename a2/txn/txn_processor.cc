@@ -164,15 +164,12 @@ void TxnProcessor::RunLockingScheduler()
                 }
             }
 
-            if (blocked == false)
+            // Request write locks.
+            for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
             {
-                // Request write locks.
-                for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it)
+                if (!lm_->WriteLock(txn, *it))
                 {
-                    if (!lm_->WriteLock(txn, *it))
-                    {
-                        blocked = true;
-                    }
+                    blocked = true;
                 }
             }
 
